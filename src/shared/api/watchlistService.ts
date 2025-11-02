@@ -25,7 +25,7 @@ const watchlistApi = baseApi.injectEndpoints({
           searchParams.append('offset', params.offset.toString());
 
         return {
-          url: `core/watchlists/?${searchParams.toString()}`,
+          url: `/core/watchlists/?${searchParams.toString()}`,
           method: 'GET',
           headers: {
             'Content-type': 'application/json',
@@ -37,7 +37,7 @@ const watchlistApi = baseApi.injectEndpoints({
 
     getWatchListById: builder.query<WatchList, number>({
       query: id => ({
-        url: `core/watchlists/${id}/`,
+        url: `/core/watchlists/${id}/`,
         method: 'GET',
         headers: {
           'Content-type': 'application/json',
@@ -51,7 +51,7 @@ const watchlistApi = baseApi.injectEndpoints({
       CreateWatchListParams
     >({
       query: data => ({
-        url: 'core/watchlists/',
+        url: '/core/watchlists/',
         method: 'POST',
         headers: {
           'Content-type': 'application/json',
@@ -66,7 +66,7 @@ const watchlistApi = baseApi.injectEndpoints({
       { id: number; data: Partial<CreateWatchListParams> }
     >({
       query: ({ id, data }) => ({
-        url: `core/watchlists/${id}/`,
+        url: `/core/watchlists/${id}/`,
         method: 'PATCH',
         headers: {
           'Content-type': 'application/json',
@@ -81,7 +81,7 @@ const watchlistApi = baseApi.injectEndpoints({
 
     deleteWatchList: builder.mutation<void, number>({
       query: id => ({
-        url: `core/watchlists/${id}/`,
+        url: `/core/watchlists/${id}/`,
         method: 'DELETE',
         headers: {
           'Content-type': 'application/json',
@@ -98,7 +98,7 @@ const watchlistApi = baseApi.injectEndpoints({
       AddAssetToWatchListParams
     >({
       query: ({ watchlist_id, asset_id }) => ({
-        url: `core/watchlists/${watchlist_id}/add_asset/`,
+        url: `/core/watchlists/${watchlist_id}/add_asset/`,
         method: 'POST',
         headers: {
           'Content-type': 'application/json',
@@ -117,7 +117,7 @@ const watchlistApi = baseApi.injectEndpoints({
       RemoveAssetFromWatchListParams
     >({
       query: ({ watchlist_id, asset_id }) => ({
-        url: `core/watchlists/${watchlist_id}/remove_asset/${asset_id}/`,
+        url: `/core/watchlists/${watchlist_id}/remove_asset/${asset_id}/`,
         method: 'DELETE',
         headers: {
           'Content-type': 'application/json',

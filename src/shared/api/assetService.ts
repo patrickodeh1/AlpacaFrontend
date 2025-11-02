@@ -77,7 +77,7 @@ const assetApi = baseApi.injectEndpoints({
         }
 
         return {
-          url: `core/assets/?${searchParams.toString()}`,
+          url: `/core/assets/?${searchParams.toString()}`,
           method: 'GET',
           headers: {
             'Content-type': 'application/json',
@@ -99,7 +99,7 @@ const assetApi = baseApi.injectEndpoints({
         if (offset) searchParams.append('offset', offset.toString());
 
         return {
-          url: `core/assets/search/?${searchParams.toString()}`,
+          url: `/core/assets/search/?${searchParams.toString()}`,
           method: 'GET',
           headers: {
             'Content-type': 'application/json',
@@ -121,7 +121,7 @@ const assetApi = baseApi.injectEndpoints({
         searchParams.append('offset', offset.toString());
 
         return {
-          url: `core/assets/search/?${searchParams.toString()}`,
+          url: `/core/assets/search/?${searchParams.toString()}`,
           method: 'GET',
           headers: {
             'Content-type': 'application/json',
@@ -143,7 +143,7 @@ const assetApi = baseApi.injectEndpoints({
       void
     >({
       query: () => ({
-        url: 'core/assets/stats/',
+        url: '/core/assets/stats/',
         method: 'GET',
         headers: {
           'Content-type': 'application/json',
@@ -156,7 +156,7 @@ const assetApi = baseApi.injectEndpoints({
 
     getAssetById: builder.query<Asset, number>({
       query: id => ({
-        url: `core/assets/${id}/`,
+        url: `/core/assets/${id}/`,
         method: 'GET',
         headers: {
           'Content-type': 'application/json',
@@ -177,7 +177,7 @@ const assetApi = baseApi.injectEndpoints({
         if (offset) searchParams.append('offset', offset.toString());
 
         return {
-          url: `core/assets/${id}/candles_v2/?${searchParams.toString()}`,
+          url: `/core/assets/${id}/candles_v2/?${searchParams.toString()}`,
           method: 'GET',
           headers: {
             'Content-type': 'application/json',
@@ -201,7 +201,7 @@ const assetApi = baseApi.injectEndpoints({
       void
     >({
       query: () => ({
-        url: 'core/alpaca/sync_status/',
+        url: '/core/alpaca/sync_status/',
         method: 'GET',
         headers: {
           'Content-type': 'application/json',
@@ -222,7 +222,7 @@ const assetApi = baseApi.injectEndpoints({
     // Sync assets
     syncAssets: builder.mutation<{ msg: string; data: string }, void>({
       query: () => ({
-        url: 'core/alpaca/sync_assets/',
+        url: '/core/alpaca/sync_assets/',
         method: 'POST',
         headers: {
           'Content-type': 'application/json',

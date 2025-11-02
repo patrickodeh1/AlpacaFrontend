@@ -21,7 +21,7 @@ export const instrumentApi = baseApi.injectEndpoints({
     >({
       query: () => {
         return {
-          url: 'core/subscribed_instruments/',
+          url: '/core/subscribed_instruments/',
           method: 'GET',
           headers: {
             'Content-type': 'application/json',
@@ -33,7 +33,7 @@ export const instrumentApi = baseApi.injectEndpoints({
     getCandles: builder.query<Candle[], GetCandlesParams>({
       query: ({ asset_id, timeframe }) => {
         return {
-          url: `core/candles/get_candles/?id=${asset_id}&tf=${timeframe}`,
+          url: `/core/candles/get_candles/?id=${asset_id}&tf=${timeframe}`,
           method: 'GET',
           headers: {
             'Content-type': 'application/json',
@@ -55,7 +55,7 @@ export const instrumentApi = baseApi.injectEndpoints({
           params.append('offset', String(offset));
 
         return {
-          url: `core/subscribed_instruments/${id}/candles/?${params.toString()}`,
+          url: `/core/subscribed_instruments/${id}/candles/?${params.toString()}`,
           method: 'GET',
           headers: {
             'Content-type': 'application/json',
@@ -69,7 +69,7 @@ export const instrumentApi = baseApi.injectEndpoints({
       SubscribeInstrumentParams
     >({
       query: ({ id, duration }) => ({
-        url: `core/subscribed_instruments/${id}/subscribe/`,
+        url: `/core/subscribed_instruments/${id}/subscribe/`,
         method: 'POST',
         body: {
           duration: duration,
@@ -82,7 +82,7 @@ export const instrumentApi = baseApi.injectEndpoints({
     }),
     loadInstrumentCandles: builder.mutation<void, LoadInstrumentCandlesParams>({
       query: ({ id }) => ({
-        url: `core/candles/${id}`,
+        url: `/core/candles/${id}`,
         method: 'POST',
         headers: {
           'Content-type': 'application/json',
@@ -92,7 +92,7 @@ export const instrumentApi = baseApi.injectEndpoints({
     }),
     deleteInstrument: builder.mutation<void, DeleteInstrumentParams>({
       query: ({ id }) => ({
-        url: `core/subscribed_instruments/${id}/`,
+        url: `/core/subscribed_instruments/${id}/`,
         method: 'DELETE',
         headers: {
           'Content-type': 'application/json',
@@ -121,7 +121,7 @@ export const instrumentApi = baseApi.injectEndpoints({
         if (expiryBefore) params.append('expiry_before', expiryBefore);
 
         return {
-          url: `core/instruments/?${params.toString()}`,
+          url: `/core/instruments/?${params.toString()}`,
           method: 'GET',
           headers: {
             'Content-type': 'application/json',

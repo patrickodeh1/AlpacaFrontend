@@ -36,7 +36,7 @@ export const userAuthApi = baseApi.injectEndpoints({
     getLoggedUser: builder.query<User, void>({
       query: () => {
         return {
-          url: '/account/profile',
+          url: '/account/profile/',
           method: 'GET',
         };
       },
@@ -55,7 +55,7 @@ export const userAuthApi = baseApi.injectEndpoints({
     sendEmail: builder.query<EmailVerificationResponse, void>({
       query: () => {
         return {
-          url: '/account/invoke_verify_email',
+          url: '/account/invoke_verify_email/',
           method: 'GET',
         };
       },

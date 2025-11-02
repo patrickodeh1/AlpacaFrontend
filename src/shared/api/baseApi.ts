@@ -9,7 +9,7 @@ import Cookies from 'js-cookie';
 import type { RootState } from 'src/app/store';
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
+  baseUrl: (import.meta.env.VITE_API_URL || 'http://localhost:8000/api').replace(/\/$/, ''), // Remove trailing slash from base URL
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as RootState).auth.token;
     if (token) {

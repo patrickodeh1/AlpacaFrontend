@@ -1,69 +1,62 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import type {
+import {
   BaseQueryFn,
   FetchArgs,
   FetchBaseQueryError,
-} from '@reduxjs/toolkit/query';
-import { getToken, removeToken } from './auth';
-import { getApiBaseUrl } from '../lib/environment';
-import { logOut } from 'src/features/auth/authSlice';
-
-const baseUrl = getApiBaseUrl();
+  createApi,
+  fetchBaseQuery,
+} from '@reduxjs/toolkit/query/react';
+import Cookies from 'js-cookie';
+import type { RootState } from 'src/app/store';
 
 const baseQuery = fetchBaseQuery({
-  baseUrl,
-  // credentials: "include",
-  prepareHeaders: headers => {
-    const token = getToken();
+  baseUrl: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
+  prepareHeaders: (headers, { getState }) => {
+    const token = (getState() as RootState).auth.token;
     if (token) {
-      headers.set('Authorization', `Bearer ${token}`);
+      headers.set('authorization', `Bearer ${token}`);
     }
     return headers;
   },
+  credentials: 'include',
 });
 
-// List of public endpoints that don't require authentication
-const PUBLIC_ENDPOINTS = [
-  '/account/login/',
-  '/account/register/',
-  '/account/social/google/',
-  '/core/', // health check
-];
-
-// Custom base query with 401 handling
 const baseQueryWithReauth: BaseQueryFn<
   string | FetchArgs,
   unknown,
   FetchBaseQueryError
 > = async (args, api, extraOptions) => {
-  const result = await baseQuery(args, api, extraOptions);
+  let result = await baseQuery(args, api, extraOptions);
 
-  // If we get a 401 (Unauthorized), clear tokens and redirect to login
   if (result.error && result.error.status === 401) {
-    // Get the endpoint URL
-    const url = typeof args === 'string' ? args : args.url;
+    const refreshToken = Cookies.get('refresh_token');
+    if (refreshToken) {
+      const refreshResult = await baseQuery(
+        {
+          url: '/account/refresh_token/',
+          method: 'POST',
+          body: { refresh: refreshToken },
+        },
+        api,
+        extraOptions
+      );
 
-    // Check if this is a public endpoint
-    const isPublicEndpoint = PUBLIC_ENDPOINTS.some(endpoint =>
-      url.includes(endpoint)
-    );
-
-    // Only clear tokens and redirect if:
-    // 1. Not on login page already
-    // 2. Not a public endpoint
-    const isLoginPage = ['/login', '/app/login'].includes(
-      window.location.pathname
-    );
-
-    if (!isLoginPage && !isPublicEndpoint) {
-      // Clear tokens from storage
-      removeToken();
-
-      // Dispatch logout action to clear Redux state
-      api.dispatch(logOut());
-
-      // Redirect to login page
-      window.location.href = '/login';
+      if (refreshResult.data) {
+        const data = refreshResult.data as { access?: string; refresh?: string };
+        if (data.access) {
+          api.dispatch({ type: 'auth/tokenRefreshed', payload: data.access });
+          Cookies.set('access_token', data.access);
+          if (data.refresh) {
+            Cookies.set('refresh_token', data.refresh);
+          }
+          result = await baseQuery(args, api, extraOptions);
+        }
+      } else {
+        api.dispatch({ type: 'auth/logout' });
+        Cookies.remove('access_token');
+        Cookies.remove('refresh_token');
+      }
+    } else {
+      api.dispatch({ type: 'auth/logout' });
     }
   }
 
@@ -74,27 +67,30 @@ export const baseApi = createApi({
   reducerPath: 'baseApi',
   baseQuery: baseQueryWithReauth,
   tagTypes: [
-    'Alpaca',
-    'Asset',
-    'Watchlist',
     'User',
-    'Tick',
+    'AlpacaAccount',
+    'Asset',
+    'WatchList',
     'Candle',
+    'Tick',
+    'Health',
     'PaperTrade',
-    'Instrument',
-    'SyncStatus',
+    // Prop Firm Tags
+    'PropFirmPlan',
+    'PropFirmAccount',
+    'Payout',
   ],
+  endpoints: () => ({}),
+});
+
+// Health check endpoint
+export const healthApi = baseApi.injectEndpoints({
   endpoints: builder => ({
-    healthCheck: builder.query<void, void>({
-      query: () => ({
-        url: '/core/',
-        method: 'GET',
-        headers: {
-          'Content-type': 'application/json',
-        },
-      }),
+    checkHealth: builder.query<{ status: string }, void>({
+      query: () => '/core/alpaca/alpaca_status/',
+      providesTags: ['Health'],
     }),
   }),
 });
 
-export const { useHealthCheckQuery } = baseApi;
+export const { useCheckHealthQuery } = healthApi;

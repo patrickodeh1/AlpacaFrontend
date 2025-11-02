@@ -7,11 +7,12 @@ const HEALTH_CHECK_INTERVAL = 120000; // 2 minutes
 const warmupHealthCheck = async () => {
   const baseUrl = getApiBaseUrl();
   const normalizedBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
-  const healthUrl = `${normalizedBase}/core/`;
+  // Use a public endpoint or skip health check if not authenticated
+  const healthUrl = `${normalizedBase}/account/login/`;
 
   try {
     await fetch(healthUrl, {
-      method: 'GET',
+      method: 'OPTIONS', // Use OPTIONS to check CORS without requiring auth
       headers: {
         'Content-Type': 'application/json',
       },

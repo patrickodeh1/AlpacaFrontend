@@ -12,7 +12,7 @@ import {
   checkHealth as checkWorkersHealth,
   setServiceStatus,
 } from './features/health/healthSlice';
-import { useHealthCheckQuery } from '@/api/baseApi';
+import { useCheckHealthQuery } from '@/api/baseApi';
 import LoadingScreen from './shared/components/LoadingScreen';
 import { initGA4 } from '@/lib/analytics';
 import { usePageTracking } from '@/hooks/usePageTracking';
@@ -29,6 +29,7 @@ const AssetDetailPage = lazy(() => import('./features/assets/AssetDetailPage'));
 const WatchlistsPage = lazy(() => import('./features/watchlists'));
 const PrivacyPage = lazy(() => import('./features/privacy'));
 const TermsPage = lazy(() => import('./features/terms'));
+const PropFirmPage = lazy(() => import('./features/propFirm'));
 
 import { checkEnvironment, GOOGLE_CLIENT_ID } from './shared/lib/environment';
 import { ThemeProvider } from './shared/components/ThemeProvider';
@@ -76,7 +77,7 @@ export default function App() {
     isLoading: isHealthCheckLoading,
     error: healthCheckError,
     isSuccess: isHealthCheckSuccess,
-  } = useHealthCheckQuery(undefined, {
+  } = useCheckHealthQuery(undefined, {
     // Start polling only after initial health check succeeds
     pollingInterval: hasInitialApiHealthCheck ? HEALTH_CHECK_INTERVAL : 0,
     skip: false,
@@ -180,6 +181,7 @@ export default function App() {
     { path: '/instruments/:id', element: <AssetDetailPage />, private: true },
     { path: '/graphs/:id', element: <GraphsPage />, private: true },
     { path: '/accounts', element: <AccountsPage />, private: true },
+    { path: '/prop-firm', element: <PropFirmPage />, private: true },
     { path: '/contact', element: <ContactPage />, private: true },
     { path: '/privacy', element: <PrivacyPage />, private: false },
     { path: '/terms', element: <TermsPage />, private: false },

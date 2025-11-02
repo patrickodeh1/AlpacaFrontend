@@ -11,7 +11,7 @@ import type { RootState } from 'src/app/store';
 const baseQuery = fetchBaseQuery({
   baseUrl: (import.meta.env.VITE_API_URL || 'http://localhost:8000/api').replace(/\/$/, ''), // Remove trailing slash from base URL
   prepareHeaders: (headers, { getState }) => {
-    const token = (getState() as RootState).auth.token;
+    const token = (getState() as RootState).auth.access;
     if (token) {
       headers.set('authorization', `Bearer ${token}`);
     }
@@ -44,7 +44,7 @@ const baseQueryWithReauth: BaseQueryFn<
         const data = refreshResult.data as { access?: string; refresh?: string };
         if (data.access) {
           api.dispatch({ type: 'auth/tokenRefreshed', payload: data.access });
-          Cookies.set('access_token', data.access);
+          Cookies.set('alpaca.authjwt', data.access);
           if (data.refresh) {
             Cookies.set('refresh_token', data.refresh);
           }
@@ -52,7 +52,7 @@ const baseQueryWithReauth: BaseQueryFn<
         }
       } else {
         api.dispatch({ type: 'auth/logout' });
-        Cookies.remove('access_token');
+        Cookies.remove('alpaca.authjwt');
         Cookies.remove('refresh_token');
       }
     } else {
@@ -79,6 +79,9 @@ export const baseApi = createApi({
     'PropFirmPlan',
     'PropFirmAccount',
     'Payout',
+    // Additional tags
+    'SyncStatus',
+    'Instrument',
   ],
   endpoints: () => ({}),
 });

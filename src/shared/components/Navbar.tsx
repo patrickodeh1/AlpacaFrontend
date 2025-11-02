@@ -13,6 +13,7 @@ import {
   LogOut,
   Search,
   ChevronRight,
+  DollarSign,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -82,7 +83,13 @@ const Navbar: React.FC = () => {
       description: 'Trading instruments',
       color: 'from-green-500 to-emerald-500',
     },
-
+    {
+      path: '/prop-firm',
+      label: 'Prop Firm',
+      icon: DollarSign,
+      description: 'Proprietary trading',
+      color: 'from-yellow-500 to-orange-500',
+    },
     {
       path: '/contact',
       label: 'Support',

@@ -32,7 +32,7 @@ const watchlistApi = baseApi.injectEndpoints({
           },
         };
       },
-      providesTags: ['Watchlist'],
+      providesTags: ['WatchList'],
     }),
 
     getWatchListById: builder.query<WatchList, number>({
@@ -43,7 +43,7 @@ const watchlistApi = baseApi.injectEndpoints({
           'Content-type': 'application/json',
         },
       }),
-      providesTags: (_result, _error, id) => [{ type: 'Watchlist', id }],
+      providesTags: (_result, _error, id) => [{ type: 'WatchList', id }],
     }),
 
     createWatchList: builder.mutation<
@@ -58,7 +58,7 @@ const watchlistApi = baseApi.injectEndpoints({
         },
         body: data,
       }),
-      invalidatesTags: ['Watchlist'],
+      invalidatesTags: ['WatchList'],
     }),
 
     updateWatchList: builder.mutation<
@@ -74,8 +74,8 @@ const watchlistApi = baseApi.injectEndpoints({
         body: data,
       }),
       invalidatesTags: (_result, _error, { id }) => [
-        { type: 'Watchlist', id },
-        'Watchlist',
+        { type: 'WatchList', id },
+        'WatchList',
       ],
     }),
 
@@ -88,8 +88,8 @@ const watchlistApi = baseApi.injectEndpoints({
         },
       }),
       invalidatesTags: (_result, _error, id) => [
-        { type: 'Watchlist', id },
-        'Watchlist',
+        { type: 'WatchList', id },
+        'WatchList',
       ],
     }),
 
@@ -106,8 +106,8 @@ const watchlistApi = baseApi.injectEndpoints({
         body: { asset_id },
       }),
       invalidatesTags: (_result, _error, { watchlist_id }) => [
-        { type: 'Watchlist', id: watchlist_id },
-        'Watchlist',
+        { type: 'WatchList', id: watchlist_id },
+        'WatchList',
         'Asset',
       ],
     }),
@@ -124,8 +124,8 @@ const watchlistApi = baseApi.injectEndpoints({
         },
       }),
       invalidatesTags: (_result, _error, { watchlist_id }) => [
-        { type: 'Watchlist', id: watchlist_id },
-        'Watchlist',
+        { type: 'WatchList', id: watchlist_id },
+        'WatchList',
         'Asset',
       ],
     }),

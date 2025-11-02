@@ -33,6 +33,9 @@ export const authSlice = createSlice({
       state.access = access;
       state.user = user;
     },
+    tokenRefreshed: (state, action: PayloadAction<string>) => {
+      state.access = action.payload;
+    },
     setAlpacaAccount: (state, action: PayloadAction<AlpacaAccount | null>) => {
       state.alpacaAccount = action.payload;
       // Update the boolean flag based on whether account exists
@@ -54,6 +57,7 @@ export const authSlice = createSlice({
 
 export const {
   setCredentials,
+  tokenRefreshed,
   setAlpacaAccount,
   setAlpacaAccountLoading,
   logOut,

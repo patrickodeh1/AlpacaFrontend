@@ -129,7 +129,7 @@ export const propFirmApi = baseApi.injectEndpoints({
     >({
       query: params => ({
         url: '/prop-firm/accounts/',
-        params,
+        params: params || {},
       }),
       providesTags: result =>
         result

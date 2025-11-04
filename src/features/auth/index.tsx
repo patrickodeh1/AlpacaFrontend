@@ -27,27 +27,27 @@ const LoginRegPage: React.FC = () => {
     {
       icon: <LineChart className="w-5 h-5" />,
       title: 'Real-time Market Data',
-      description: 'WebSocket streaming for live market updates',
+      description: 'Live market data streaming for instant updates',
     },
     {
       icon: <BarChart4 className="w-5 h-5" />,
-      title: 'TradingView Charts',
-      description: 'Professional charting with technical indicators',
+      title: 'Advanced Charting',
+      description: 'Professional charts with technical indicators',
     },
     {
       icon: <Shield className="w-5 h-5" />,
-      title: 'Django REST API',
-      description: 'Robust backend with Python/Django',
+      title: 'Risk Management',
+      description: 'Advanced tools for position sizing and risk control',
     },
     {
       icon: <Clock className="w-5 h-5" />,
-      title: 'Docker Ready',
-      description: 'Easy deployment with Docker orchestration',
+      title: 'Portfolio Analytics',
+      description: 'Comprehensive performance tracking and reporting',
     },
     {
       icon: <Sparkles className="w-5 h-5" />,
-      title: 'Free Tier Included',
-      description: 'Start with 30 assets at no cost',
+      title: 'Free to Start',
+      description: 'Begin trading with no upfront costs',
     },
   ];
 
@@ -162,7 +162,7 @@ const LoginRegPage: React.FC = () => {
                         className="mt-1 text-white border-0 bg-white/20"
                       >
                         <Sparkles className="w-3 h-3 mr-1" />
-                        Open Source
+                        Trading Ready
                       </Badge>
                     </div>
                   </div>
@@ -176,16 +176,16 @@ const LoginRegPage: React.FC = () => {
                   className="space-y-4"
                 >
                   <h1 className="text-3xl font-bold leading-tight text-white">
-                    Market Data Streaming Platform
+                    Professional Trading Platform
                   </h1>
                   <p className="text-lg leading-relaxed text-white/80">
-                    Full-stack starter kit for building real-time trading
-                    dashboards with Django, React, and TradingView
+                    Enterprise-grade trading platform with real-time market data,
+                    advanced analytics, and comprehensive risk management tools
                   </p>
                   <div className="flex items-center gap-2 pt-2">
                     <TrendingUp className="w-5 h-5 text-white/80" />
                     <span className="text-sm text-white/70">
-                      Powered by Alpaca API
+                      Professional Trading Tools
                     </span>
                   </div>
                 </motion.div>
@@ -241,13 +241,13 @@ const LoginRegPage: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <Sparkles className="w-5 h-5 text-white/80" />
                       <span className="text-sm font-medium text-white/90">
-                        Open Source Starter Kit
+                        Professional Trading Platform
                       </span>
                     </div>
                     <p className="text-sm leading-relaxed text-white/70">
-                      A production-ready foundation for building market data
-                      applications with real-time WebSocket streaming,
-                      professional charts, and Docker deployment.
+                      Enterprise-grade trading platform designed for traders
+                      with real-time market data, advanced analytics,
+                      and comprehensive risk management tools.
                     </p>
                   </div>
                 </motion.div>

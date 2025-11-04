@@ -25,7 +25,6 @@ import { Sheet, SheetContent } from '@/components/ui/sheet';
 //import { Dialog, DialogContent } from '@/components/ui/dialog';
 //import { Drawer, DrawerContent } from '@/components/ui/drawer';
 import PanelHeader from './components/PanelHeader';
-//import PaperTradingPanel from './components/controls/PaperTradingPanel';
 import { useCandles } from './hooks/useCandles';
 import { useDerivedSeries } from './hooks/useDerivedSeries';
 import { useChartSync } from './hooks/useChartSync';
@@ -33,6 +32,7 @@ import { useFullscreen } from './hooks/useFullscreen';
 import { useGraphShortcuts } from './hooks/useGraphShortcuts';
 import { useReplayController } from './hooks/useReplayController';
 import ChartToolbar from './components/ChartToolbar';
+import PaperTradingPanel from './components/controls/PaperTradingPanel';
 import {
   setShowVolume,
   setAutoRefresh,
@@ -546,87 +546,102 @@ const GraphsPage: React.FC = () => {
           </div>
         ) : (
           <div className="flex-1">
-            <ResizablePanelGroup direction="vertical">
-              {/* Main Chart */}
-              <ResizablePanel defaultSize={shouldShowVolume ? 75 : 100}>
-                <div className="relative h-full">
-                  <MainChart
-                    seriesData={displayedSeriesData}
-                    mode={isDarkMode}
-                    setTimeScale={setMainChartTimeScale}
-                    emaData={displayedEmaData}
-                    bollingerBandsData={displayedBollingerBandsData}
-                    onLoadMoreData={loadMoreHistoricalData}
-                    isLoadingMore={isLoadingMore || isFetching}
-                    hasMoreData={hasMore}
-                  />
-                  {mobileReplayControls}
-                </div>
-                {(isLoadingMore || isFetching) && (
-                  <div className="flex items-center justify-center py-2 text-xs text-muted-foreground animate-pulse">
-                    Loading more…
-                  </div>
-                )}
+            <ResizablePanelGroup direction="horizontal">
+              {/* Charts Section */}
+              <ResizablePanel defaultSize={70} minSize={50}>
+                <ResizablePanelGroup direction="vertical">
+                  {/* Main Chart */}
+                  <ResizablePanel defaultSize={shouldShowVolume ? 75 : 100}>
+                    <div className="relative h-full">
+                      <MainChart
+                        seriesData={displayedSeriesData}
+                        mode={isDarkMode}
+                        setTimeScale={setMainChartTimeScale}
+                        emaData={displayedEmaData}
+                        bollingerBandsData={displayedBollingerBandsData}
+                        onLoadMoreData={loadMoreHistoricalData}
+                        isLoadingMore={isLoadingMore || isFetching}
+                        hasMoreData={hasMore}
+                      />
+                      {mobileReplayControls}
+                    </div>
+                    {(isLoadingMore || isFetching) && (
+                      <div className="flex items-center justify-center py-2 text-xs text-muted-foreground animate-pulse">
+                        Loading more…
+                      </div>
+                    )}
+                  </ResizablePanel>
+
+                  {/* Volume Chart */}
+                  {shouldShowVolume && (
+                    <>
+                      <ResizableHandle className="p-0" withHandle />
+                      <ResizablePanel defaultSize={25} minSize={15}>
+                        <PanelHeader
+                          title="Volume"
+                          icon={<HiChartBar className="w-4 h-4 text-chart-1" />}
+                          onClose={() => dispatch(setShowVolume(false))}
+                        />
+                        <VolumeChart
+                          volumeData={displayedVolumeData}
+                          mode={isDarkMode}
+                          setTimeScale={setVolumeChartTimeScale}
+                        />
+                      </ResizablePanel>
+                    </>
+                  )}
+
+                  {/* RSI Chart */}
+                  {activeIndicators.includes('RSI') && (
+                    <>
+                      <ResizableHandle className="p-0" withHandle />
+                      <ResizablePanel defaultSize={20} minSize={15}>
+                        <PanelHeader
+                          title="RSI"
+                          icon={<HiChartBar className="w-4 h-4 text-amber-500" />}
+                          onClose={() => dispatch(removeIndicator('RSI'))}
+                        />
+                        <IndicatorChart
+                          rsiData={displayedRsiData}
+                          atrData={[]}
+                          mode={isDarkMode}
+                          setTimeScale={setRSIChartTimeScale}
+                        />
+                      </ResizablePanel>
+                    </>
+                  )}
+
+                  {/* ATR Chart */}
+                  {activeIndicators.includes('ATR') && (
+                    <>
+                      <ResizableHandle className="p-0" withHandle />
+                      <ResizablePanel defaultSize={20} minSize={15}>
+                        <PanelHeader
+                          title="ATR"
+                          icon={<HiChartBar className="w-4 h-4 text-blue-500" />}
+                          onClose={() => dispatch(removeIndicator('ATR'))}
+                        />
+                        <IndicatorChart
+                          rsiData={[]}
+                          atrData={displayedAtrData}
+                          mode={isDarkMode}
+                          setTimeScale={setATRChartTimeScale}
+                        />
+                      </ResizablePanel>
+                    </>
+                  )}
+                </ResizablePanelGroup>
               </ResizablePanel>
 
-              {/* Volume Chart */}
-              {shouldShowVolume && (
-                <>
-                  <ResizableHandle className="p-0" withHandle />
-                  <ResizablePanel defaultSize={25} minSize={15}>
-                    <PanelHeader
-                      title="Volume"
-                      icon={<HiChartBar className="w-4 h-4 text-chart-1" />}
-                      onClose={() => dispatch(setShowVolume(false))}
-                    />
-                    <VolumeChart
-                      volumeData={displayedVolumeData}
-                      mode={isDarkMode}
-                      setTimeScale={setVolumeChartTimeScale}
-                    />
-                  </ResizablePanel>
-                </>
-              )}
-
-              {/* RSI Chart */}
-              {activeIndicators.includes('RSI') && (
-                <>
-                  <ResizableHandle className="p-0" withHandle />
-                  <ResizablePanel defaultSize={20} minSize={15}>
-                    <PanelHeader
-                      title="RSI"
-                      icon={<HiChartBar className="w-4 h-4 text-amber-500" />}
-                      onClose={() => dispatch(removeIndicator('RSI'))}
-                    />
-                    <IndicatorChart
-                      rsiData={displayedRsiData}
-                      atrData={[]}
-                      mode={isDarkMode}
-                      setTimeScale={setRSIChartTimeScale}
-                    />
-                  </ResizablePanel>
-                </>
-              )}
-
-              {/* ATR Chart */}
-              {activeIndicators.includes('ATR') && (
-                <>
-                  <ResizableHandle className="p-0" withHandle />
-                  <ResizablePanel defaultSize={20} minSize={15}>
-                    <PanelHeader
-                      title="ATR"
-                      icon={<HiChartBar className="w-4 h-4 text-blue-500" />}
-                      onClose={() => dispatch(removeIndicator('ATR'))}
-                    />
-                    <IndicatorChart
-                      rsiData={[]}
-                      atrData={displayedAtrData}
-                      mode={isDarkMode}
-                      setTimeScale={setATRChartTimeScale}
-                    />
-                  </ResizablePanel>
-                </>
-              )}
+              {/* Trading Panel */}
+              <ResizableHandle className="p-0" withHandle />
+              <ResizablePanel defaultSize={30} minSize={25} maxSize={50}>
+                <PaperTradingPanel
+                  asset={obj}
+                  currentPrice={displayedSeriesData.length > 0 ? displayedSeriesData[displayedSeriesData.length - 1]?.close : undefined}
+                  enabled={true}
+                />
+              </ResizablePanel>
             </ResizablePanelGroup>
           </div>
         )}

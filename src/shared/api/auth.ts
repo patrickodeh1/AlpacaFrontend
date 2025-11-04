@@ -3,6 +3,7 @@ import cookie from 'js-cookie';
 export const AUTHENTICATION_TOKEN_NAME = 'alpaca.authjwt';
 export const AUTHENTICATION_TOKEN_EXPIRATION = 20;
 export const AUTHENTICATION_USER_NAME = 'alpaca.user';
+export const REFRESH_TOKEN_NAME = 'refresh_token';
 
 export function getToken(): string | undefined {
   return cookie.get(AUTHENTICATION_TOKEN_NAME);
@@ -14,7 +15,18 @@ export function setToken(token: string) {
   });
 }
 
+export function getRefreshToken(): string | undefined {
+  return cookie.get(REFRESH_TOKEN_NAME);
+}
+
+export function setRefreshToken(token: string) {
+  cookie.set(REFRESH_TOKEN_NAME, token, {
+    expires: 7, // Refresh tokens typically last longer
+  });
+}
+
 export function removeToken() {
   cookie.remove(AUTHENTICATION_TOKEN_NAME);
   cookie.remove(AUTHENTICATION_USER_NAME);
+  cookie.remove(REFRESH_TOKEN_NAME);
 }

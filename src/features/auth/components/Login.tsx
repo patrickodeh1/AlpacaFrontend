@@ -22,7 +22,7 @@ import { useNavigate } from 'react-router-dom';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAppDispatch } from 'src/app/hooks';
 import { setCredentials } from '../authSlice';
-import { setToken } from '@/api/auth';
+import { setToken, setRefreshToken } from '@/api/auth';
 import { AuthResponse } from '@/types/common-types';
 import { handleAuthError } from '@/utils/errorHandler';
 
@@ -101,6 +101,7 @@ const Login: React.FC = () => {
 
   const handleAuthSuccess = async (userData: AuthResponse) => {
     setToken(userData.token.access);
+    setRefreshToken(userData.token.refresh);
 
     // Fetch logged in user data
     const { data: user } = await getLoggedUser();

@@ -50,6 +50,22 @@ export const paperTradingApi = baseApi.injectEndpoints({
         method: 'POST',
         body,
       }),
+      onQueryStarted: async (_, { dispatch, queryFulfilled }) => {
+        try {
+          const { data: newTrade } = await queryFulfilled;
+          dispatch(
+            paperTradingApi.util.updateQueryData(
+              'getPaperTrades',
+              { assetId: newTrade.asset },
+              draftTrades => {
+                draftTrades.push(newTrade);
+              }
+            )
+          );
+        } catch {
+          // If the mutation fails, do nothing
+        }
+      },
       invalidatesTags: [{ type: 'PaperTrade', id: 'LIST' }],
     }),
     closePaperTrade: builder.mutation<PaperTrade, ClosePaperTradePayload>({

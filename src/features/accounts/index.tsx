@@ -28,7 +28,7 @@ const AccountsPage = () => {
     skip: !user?.is_admin
   });
   
-  const users = usersData || [];
+  const users = usersData?.data || [];
 
   const handleSync = async () => {
     await syncAssets();

@@ -11,12 +11,20 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { 
+  Tabs, 
+  TabsContent, 
+  TabsList, 
+  TabsTrigger 
+} from "@/components/ui/tabs";
 import { Loader2 } from 'lucide-react';
 import {
   useCreateWatchListMutation,
   useUpdateWatchListMutation,
+  useAddAssetToWatchListMutation,
 } from '@/api/watchlistService';
 import { WatchList, CreateWatchListParams } from '@/types/common-types';
+import { GlobalWatchListsSelect } from './GlobalWatchListsSelect';
 
 interface WatchListDialogProps {
   watchlist?: WatchList;
@@ -41,8 +49,12 @@ export const WatchListDialog: React.FC<WatchListDialogProps> = ({
     useCreateWatchListMutation();
   const [updateWatchList, { isLoading: isUpdating }] =
     useUpdateWatchListMutation();
+  const [addAssetToWatchList] = useAddAssetToWatchListMutation();
 
-  const isLoading = isCreating || isUpdating;
+  const [selectedGlobalList, setSelectedGlobalList] = useState<WatchList | null>(null);
+  const [isSeeding, setIsSeeding] = useState(false);
+
+  const isLoading = isCreating || isUpdating || isSeeding;
   const isEditing = !!watchlist;
 
   useEffect(() => {
@@ -52,6 +64,7 @@ export const WatchListDialog: React.FC<WatchListDialogProps> = ({
         description: watchlist?.description || '',
         is_active: watchlist?.is_active ?? true,
       });
+      setSelectedGlobalList(null);  // Reset selected global list when dialog opens
     }
   }, [open, watchlist]);
 
@@ -62,7 +75,28 @@ export const WatchListDialog: React.FC<WatchListDialogProps> = ({
       if (isEditing) {
         await updateWatchList({ id: watchlist.id, data: formData }).unwrap();
       } else {
-        await createWatchList(formData).unwrap();
+        // Create the new watchlist
+        const result = await createWatchList(formData).unwrap();
+        const newWatchlistId = result.data?.id;
+
+        // If seeding from a global list, copy its assets
+        if (selectedGlobalList && newWatchlistId) {
+          setIsSeeding(true);
+          try {
+            // Add each asset from the global list to the new list
+            const promises = selectedGlobalList.assets.map(async (wa) => {
+              if (wa.asset?.id && wa.is_active) {
+                await addAssetToWatchList({
+                  watchlist_id: newWatchlistId,
+                  asset_id: wa.asset.id,
+                }).unwrap();
+              }
+            });
+            await Promise.all(promises);
+          } finally {
+            setIsSeeding(false);
+          }
+        }
       }
 
       onSuccess();
@@ -94,6 +128,26 @@ export const WatchListDialog: React.FC<WatchListDialogProps> = ({
         </DialogHeader>
 
         <form onSubmit={handleSubmit}>
+          {!isEditing && (
+            <Tabs defaultValue="blank" className="w-full">
+              <TabsList className="w-full">
+                <TabsTrigger value="blank" className="w-full">Blank List</TabsTrigger>
+                <TabsTrigger value="seed" className="w-full">Seed from Global</TabsTrigger>
+              </TabsList>
+              <TabsContent value="blank">
+                <div className="py-2 text-sm text-muted-foreground">
+                  Create an empty watchlist and add instruments later.
+                </div>
+              </TabsContent>
+              <TabsContent value="seed" className="space-y-4">
+                <div className="py-2 text-sm text-muted-foreground">
+                  Select a global watchlist to copy its instruments to your new list.
+                </div>
+                <GlobalWatchListsSelect onSelect={setSelectedGlobalList} />
+              </TabsContent>
+            </Tabs>
+          )}
+
           <div className="grid gap-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="name">Name *</Label>
@@ -130,6 +184,7 @@ export const WatchListDialog: React.FC<WatchListDialogProps> = ({
             <Button type="submit" disabled={isLoading || !formData.name.trim()}>
               {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {isEditing ? 'Update' : 'Create'} Watchlist
+              {isSeeding && ' (Seeding...)'}
             </Button>
           </DialogFooter>
         </form>

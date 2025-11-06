@@ -26,12 +26,12 @@ const LoginRegPage: React.FC = () => {
   const features = [
     {
       icon: <LineChart className="w-5 h-5" />,
-      title: 'Real-time Market Data',
-      description: 'Live market data streaming for instant updates',
+      title: 'Challenge Accounts',
+      description: 'Prove your skills and get funded up to $1,000,000',
     },
     {
       icon: <BarChart4 className="w-5 h-5" />,
-      title: 'Advanced Charting',
+      title: 'Real-time Analytics',
       description: 'Professional charts with technical indicators',
     },
     {

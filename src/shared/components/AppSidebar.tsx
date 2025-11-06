@@ -54,26 +54,42 @@ import HealthStatus from './HealthStatus';
 import { removeToken } from '@/api/auth';
 import SidebarFooterContent from './SidebarFooterContent';
 
-const navItems = [
-  {
-    path: '/',
-    label: 'Watchlists',
-    icon: TrendingUp,
-    description: 'Manage your watchlists',
-  },
-  {
-    path: '/instruments',
-    label: 'Instruments',
-    icon: BarChart3,
-    description: 'Trading instruments',
-  },
-  {
-    path: '/contact',
-    label: 'Support',
-    icon: Mail,
-    description: 'Help & contact',
-  },
-];
+const getNavItems = (isAdmin: boolean) =>
+  isAdmin
+    ? [
+        {
+          path: '/',
+          label: 'Watchlists',
+          icon: TrendingUp,
+          description: 'Manage your watchlists',
+        },
+        {
+          path: '/instruments',
+          label: 'Instruments',
+          icon: BarChart3,
+          description: 'Trading instruments',
+        },
+        {
+          path: '/contact',
+          label: 'Support',
+          icon: Mail,
+          description: 'Help & contact',
+        },
+      ]
+    : [
+        {
+          path: '/watchlists',
+          label: 'Watchlists',
+          icon: TrendingUp,
+          description: 'General watchlists',
+        },
+        {
+          path: '/contact',
+          label: 'Support',
+          icon: Mail,
+          description: 'Help & contact',
+        },
+      ];
 
 export const AppSidebar: React.FC<React.ComponentProps<typeof Sidebar>> = ({
   ...props
@@ -146,7 +162,7 @@ export const AppSidebar: React.FC<React.ComponentProps<typeof Sidebar>> = ({
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navItems.map(item => {
+              {getNavItems(user?.is_admin).map(item => {
                 const isActive = location.pathname === item.path;
                 return (
                   <SidebarMenuItem key={item.path}>

@@ -114,7 +114,12 @@ const Login: React.FC = () => {
       })
     );
 
-    navigate('/');
+    // Redirect based on user role
+    if (user?.is_admin) {
+      navigate('/admin/watchlists');
+    } else {
+      navigate('/prop-firm');
+    }
   };
 
   return (

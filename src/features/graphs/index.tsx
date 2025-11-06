@@ -638,7 +638,11 @@ const GraphsPage: React.FC = () => {
               <ResizablePanel defaultSize={30} minSize={25} maxSize={50}>
                 <PaperTradingPanel
                   asset={obj}
-                  currentPrice={displayedSeriesData.length > 0 ? displayedSeriesData[displayedSeriesData.length - 1]?.close : undefined}
+                  currentPrice={
+                    displayedSeriesData.length > 0
+                      ? (displayedSeriesData[displayedSeriesData.length - 1] as any)?.close
+                      : undefined
+                  }
                   enabled={true}
                 />
               </ResizablePanel>

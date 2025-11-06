@@ -38,19 +38,45 @@ import {
   Eye,
   Plus,
   ShoppingCart,
-  LineChart,
   List
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import LoadingScreen from '@/components/LoadingScreen';
 import { toast } from 'sonner';
 import PlanPurchase from './components/PlanPurchase';
+import { useGetGlobalWatchListsQuery } from '@/api/watchlistService';
+import { WatchList } from '@/types/common-types';
+import { useAppSelector } from 'src/app/hooks';
+import { getLoggedInUser } from '../auth/authSlice';
+
+// Simple list to show global (admin) watchlists for traders
+function GlobalWatchlistsList() {
+  const { data, isLoading } = useGetGlobalWatchListsQuery();
+  const lists = data?.results || [];
+  const user = useAppSelector(getLoggedInUser);
+
+  if (isLoading) return <div className="text-sm text-muted-foreground">Loading...</div>;
+  if (lists.length === 0) return <div className="text-sm text-muted-foreground">No general watchlists available</div>;
+
+  return (
+    <div className="space-y-1">
+      {lists.map((list: WatchList) => (
+        <Link
+          key={list.id}
+          to={user?.is_admin ? `/admin/watchlists/${list.id}` : `/watchlists/${list.id}`}
+          className="flex items-center justify-between p-2 hover:bg-muted/50 rounded-md"
+        >
+          <div className="flex flex-col">
+            <span className="font-medium">{list.name}</span>
+            <span className="text-xs text-muted-foreground">{list.asset_count} instruments</span>
+          </div>
+        </Link>
+      ))}
+    </div>
+  );
+}
 
 const PropFirmPage: React.FC = () => {
-  const { data: plansData, isLoading: plansLoading } = useGetPlansQuery();
-  const { data: accountsData, isLoading: accountsLoading, refetch: refetchAccounts } = useGetAccountsQuery();
-  const { data: payoutsData } = useGetPayoutsQuery();
-
   const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
   const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
   const [showAccountDetails, setShowAccountDetails] = useState(false);
@@ -63,6 +89,14 @@ const PropFirmPage: React.FC = () => {
     payment_method: '',
     payment_details: {}
   });
+
+  // Get user from Redux store
+  const user = useAppSelector(getLoggedInUser);
+
+  // API queries
+  const { data: plansData, isLoading: plansLoading, error: plansError } = useGetPlansQuery();
+  const { data: accountsData, isLoading: accountsLoading, error: accountsError, refetch: refetchAccounts } = useGetAccountsQuery();
+  const { data: payoutsData, error: payoutsError } = useGetPayoutsQuery();
 
   const { data: accountDetails } = useGetAccountQuery(selectedAccountId!, {
     skip: !selectedAccountId || !showAccountDetails
@@ -81,6 +115,20 @@ const PropFirmPage: React.FC = () => {
   const [refreshBalance] = useRefreshAccountBalanceMutation();
   const [createCheckoutSession] = useCreateCheckoutSessionMutation();
   const [requestPayout] = useRequestPayoutMutation();
+
+  // Handle API errors
+  if (plansError || accountsError || payoutsError) {
+    return (
+      <div className="container mx-auto p-6">
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            Failed to load prop firm data. Please try refreshing the page.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   if (plansLoading || accountsLoading) {
     return <LoadingScreen />;
@@ -229,33 +277,27 @@ const PropFirmPage: React.FC = () => {
                 <BarChart3 className="w-5 h-5" />
                 Quick Navigation
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Link to="/instruments">
-                  <Button variant="outline" className="w-full justify-start h-auto py-4">
+              <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                <Link to="/prop-firm">
+                  <Button variant="outline" className="w-full justify-center h-auto py-4">
                     <BarChart3 className="w-5 h-5 mr-3" />
                     <div className="text-left">
-                      <div className="font-semibold">Browse Instruments</div>
-                      <div className="text-xs text-muted-foreground">Search and view all trading assets</div>
+                      <div className="font-semibold">Trading Dashboard</div>
+                      <div className="text-xs text-muted-foreground">Manage your trading accounts</div>
                     </div>
                   </Button>
                 </Link>
-                <Link to="/admin/watchlists">
-                  <Button variant="outline" className="w-full justify-start h-auto py-4">
-                    <List className="w-5 h-5 mr-3" />
-                    <div className="text-left">
-                      <div className="font-semibold">Manage Watchlists</div>
-                      <div className="text-xs text-muted-foreground">Create and organize watchlists</div>
-                    </div>
-                  </Button>
-                </Link>
-                <Button variant="outline" className="w-full justify-start h-auto py-4" disabled>
-                  <LineChart className="w-5 h-5 mr-3" />
-                  <div className="text-left">
-                    <div className="font-semibold">View Charts</div>
-                    <div className="text-xs text-muted-foreground">Select asset from watchlist to chart</div>
-                  </div>
-                </Button>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Global watchlists for traders (admin lists shown as general lists) */}
+          <Card>
+            <CardHeader>
+              <CardTitle>General Watchlists</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <GlobalWatchlistsList />
             </CardContent>
           </Card>
 
@@ -395,13 +437,14 @@ const PropFirmPage: React.FC = () => {
                       </Button>
                       </div>
                       <div className="flex gap-2">
-                        <Link to="/instruments" className="flex-1">
+                        {/** Block /instruments for non-admins - route them to /watchlists instead */}
+                        <Link to={user?.is_admin ? '/instruments' : '/watchlists'} className="flex-1">
                           <Button variant="outline" size="sm" className="w-full">
                             <BarChart3 className="w-4 h-4 mr-2" />
                             Instruments
                           </Button>
                         </Link>
-                        <Link to="/admin/watchlists" className="flex-1">
+                        <Link to="/watchlists" className="flex-1">
                           <Button variant="outline" size="sm" className="w-full">
                             <List className="w-4 h-4 mr-2" />
                             Watchlists

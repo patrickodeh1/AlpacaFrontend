@@ -31,6 +31,7 @@ const WatchlistsPage = lazy(() => import('./features/watchlists'));
 const PrivacyPage = lazy(() => import('./features/privacy'));
 const TermsPage = lazy(() => import('./features/terms'));
 const PropFirmPage = lazy(() => import('./features/propFirm'));
+const AdminDashboardPage = lazy(() => import('./features/admin'));
 
 import { checkEnvironment, GOOGLE_CLIENT_ID } from './shared/lib/environment';
 import { ThemeProvider } from './shared/components/ThemeProvider';
@@ -184,14 +185,21 @@ export default function App() {
   }
 
   const routes = [
-    { path: '/', element: <HomePage />, private: false },
+    { 
+      path: '/', 
+      element: <Navigate to={loggedInUser?.is_admin ? '/admin/watchlists' : '/prop-firm'} replace />, 
+      private: true 
+    },
     { path: '/profile', element: <ProfilePage />, private: true },
     { path: '/instruments', element: <AssetsPage />, private: true },
     { path: '/instruments/:id', element: <AssetDetailPage />, private: true },
     { path: '/graphs/:id', element: <GraphsPage />, private: true },
     { path: '/accounts', element: <AccountsPage />, private: true },
     { path: '/prop-firm', element: <PropFirmPage />, private: true },
+    { path: '/admin/dashboard', element: <AdminDashboardPage />, private: 'admin' },
     { path: '/admin/watchlists', element: <WatchlistsPage />, private: 'admin' },
+    { path: '/watchlists', element: <WatchlistsPage />, private: true },
+    { path: '/watchlists/:id', element: <WatchlistsPage />, private: true },
     { path: '/contact', element: <ContactPage />, private: true },
     { path: '/privacy', element: <PrivacyPage />, private: false },
     { path: '/terms', element: <TermsPage />, private: false },

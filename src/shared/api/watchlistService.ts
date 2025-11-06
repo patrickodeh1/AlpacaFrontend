@@ -46,6 +46,19 @@ const watchlistApi = baseApi.injectEndpoints({
       providesTags: (_result, _error, id) => [{ type: 'WatchList', id }],
     }),
 
+    // Fetch only global (admin) watchlists. Backend accepts ?global=true.
+    getGlobalWatchLists: builder.query<
+      PaginatedApiResponse<WatchList>,
+      void
+    >({
+      query: () => ({
+        url: `/core/watchlists/?global=true`,
+        method: 'GET',
+        headers: { 'Content-type': 'application/json' },
+      }),
+      providesTags: ['WatchList'],
+    }),
+
     createWatchList: builder.mutation<
       ApiResponse<WatchList>,
       CreateWatchListParams
@@ -135,6 +148,7 @@ const watchlistApi = baseApi.injectEndpoints({
 export const {
   useGetWatchListsQuery,
   useGetWatchListByIdQuery,
+  useGetGlobalWatchListsQuery,
   useCreateWatchListMutation,
   useUpdateWatchListMutation,
   useDeleteWatchListMutation,

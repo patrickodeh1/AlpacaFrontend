@@ -216,6 +216,16 @@ export const propFirmApi = baseApi.injectEndpoints({
       invalidatesTags: [{ type: 'PropFirmAccount', id: 'LIST' }],
     }),
 
+    // Mock payment (development only)
+    mockPay: builder.mutation<ApiResponse<PropFirmAccount>, { plan_id: number; billing: Record<string, any>; card: Record<string, any> }>({
+      query: body => ({
+        url: '/prop-firm/checkout/mock_pay/',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: [{ type: 'PropFirmAccount', id: 'LIST' }],
+    }),
+
     // Payouts
     getPayouts: builder.query<ApiResponse<Payout[]>, void>({
       query: () => '/prop-firm/payouts/',
@@ -237,6 +247,15 @@ export const propFirmApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['Payout'],
     }),
+
+    // Admin dashboard (frontend consumes this)
+    getAdminDashboard: builder.query<
+      ApiResponse<Record<string, unknown>>,
+      void
+    >({
+      query: () => '/prop-firm/admin/dashboard/',
+      providesTags: ['PropFirmAccount', 'Payout'],
+    }),
   }),
   overrideExisting: false,
 });
@@ -254,4 +273,6 @@ export const {
   useVerifyPaymentMutation,
   useGetPayoutsQuery,
   useRequestPayoutMutation,
+  useGetAdminDashboardQuery,
+  useMockPayMutation,
 } = propFirmApi;

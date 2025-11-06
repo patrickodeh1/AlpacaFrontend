@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useGetPlansQuery, useCreateCheckoutSessionMutation } from '@/api/propFirmService';
+import { useGetPlansQuery, useMockPayMutation } from '@/api/propFirmService';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -24,7 +24,7 @@ interface PlanPurchaseProps {
 
 const PlanPurchase: React.FC<PlanPurchaseProps> = ({ onBack }) => {
   const { data: plansData, isLoading: plansLoading } = useGetPlansQuery();
-  const [createCheckoutSession] = useCreateCheckoutSessionMutation();
+  const [mockPay] = useMockPayMutation();
 
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
   const [showPurchaseForm, setShowPurchaseForm] = useState(false);
@@ -82,14 +82,32 @@ const PlanPurchase: React.FC<PlanPurchaseProps> = ({ onBack }) => {
       // Simulate payment processing
       await new Promise(resolve => setTimeout(resolve, 2000));
 
-      // Create checkout session
-      await createCheckoutSession({
+      // For demo mode we perform a mock payment through the backend.
+      // This is a development-only flow and should be removed when
+      // integrating with real Stripe.
+      await mockPay({
         plan_id: selectedPlan.id,
-        success_url: `${window.location.origin}/app/prop-firm?success=true`,
-        cancel_url: `${window.location.origin}/app/prop-firm?canceled=true`
+        billing: {
+          firstName: purchaseForm.firstName,
+          lastName: purchaseForm.lastName,
+          email: purchaseForm.email,
+          phone: purchaseForm.phone,
+          address: purchaseForm.address,
+          city: purchaseForm.city,
+          state: purchaseForm.state,
+          zipCode: purchaseForm.zipCode,
+          country: purchaseForm.country,
+        },
+        card: {
+          cardholderName: paymentForm.cardholderName,
+          cardNumber: paymentForm.cardNumber,
+          expiryMonth: paymentForm.expiryMonth,
+          expiryYear: paymentForm.expiryYear,
+          cvv: paymentForm.cvv,
+        }
       }).unwrap();
 
-      toast.success('Payment successful! Account created.');
+      toast.success('Mock payment successful! Account created.');
       setShowPaymentMock(false);
       setShowPurchaseForm(false);
       setSelectedPlan(null);

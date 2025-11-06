@@ -61,6 +61,13 @@ export const userAuthApi = baseApi.injectEndpoints({
       },
       providesTags: ['User'],
     }),
+    getUsers: builder.query<ApiResponse<User[]>, void>({
+      query: () => ({
+        url: '/account/users/',
+        method: 'GET',
+      }),
+      providesTags: ['User'],
+    }),
   }),
 });
 
@@ -70,4 +77,5 @@ export const {
   useGetLoggedUserQuery,
   useGoogleLoginMutation,
   useLazySendEmailQuery,
+  useGetUsersQuery,
 } = userAuthApi;

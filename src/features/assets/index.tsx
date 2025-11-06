@@ -30,10 +30,13 @@ import {
   useSyncAssetsMutation,
 } from '@/api/assetService';
 import { useToast } from '@/hooks/useToast';
+import { getLoggedInUser } from 'src/features/auth/authSlice';
 
 export const AssetsPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const assetState = useAppSelector(state => state.asset);
+  const user = useAppSelector(getLoggedInUser);
+  const isAdmin = user?.is_admin || false;
   const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
 
@@ -172,28 +175,30 @@ export const AssetsPage: React.FC = () => {
         </PageSubHeader>
       }
       actions={
-        <PageActions>
-          <div className="flex items-center gap-2">
-            <Button
-              onClick={handleSyncAssets}
-              disabled={isSyncing || syncStatus?.is_syncing}
-              className="gap-2"
-            >
-              <RefreshCcw
-                className={`w-4 h-4 ${isSyncing || syncStatus?.is_syncing ? 'animate-spin' : ''}`}
-              />
-              <span className="hidden sm:inline">
-                {isSyncing || syncStatus?.is_syncing
-                  ? 'Syncing...'
-                  : 'Sync Assets'}
-              </span>
-            </Button>
-          </div>
-        </PageActions>
+        isAdmin && (
+          <PageActions>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={handleSyncAssets}
+                disabled={isSyncing || syncStatus?.is_syncing}
+                className="gap-2"
+              >
+                <RefreshCcw
+                  className={`w-4 h-4 ${isSyncing || syncStatus?.is_syncing ? 'animate-spin' : ''}`}
+                />
+                <span className="hidden sm:inline">
+                  {isSyncing || syncStatus?.is_syncing
+                    ? 'Syncing...'
+                    : 'Sync Assets'}
+                </span>
+              </Button>
+            </div>
+          </PageActions>
+        )
       }
     >
-      {/* Sync Banner */}
-      {syncStatus?.needs_sync && (
+      {/* Sync Banner - Admin Only */}
+      {isAdmin && syncStatus?.needs_sync && (
         <Alert className="mb-6 border-amber-200/50 bg-amber-50/50 dark:border-amber-800/50 dark:bg-amber-950/50 backdrop-blur-sm">
           <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
           <AlertDescription className="flex items-center justify-between">
@@ -226,8 +231,8 @@ export const AssetsPage: React.FC = () => {
         </Alert>
       )}
 
-      {/* Syncing Banner */}
-      {syncStatus?.is_syncing && (
+      {/* Syncing Banner - Admin Only */}
+      {isAdmin && syncStatus?.is_syncing && (
         <Alert className="mb-6 border-blue-200/50 bg-blue-50/50 dark:border-blue-800/50 dark:bg-blue-950/50 backdrop-blur-sm">
           <RefreshCcw className="w-4 h-4 text-blue-600 animate-spin dark:text-blue-400" />
           <AlertDescription>

@@ -121,7 +121,7 @@ export default function Registration() {
       })
     );
 
-    navigate('/');
+    navigate('/prop-firm');
   };
 
   return (

@@ -37,8 +37,11 @@ import {
   Clock,
   Eye,
   Plus,
-  ShoppingCart
+  ShoppingCart,
+  LineChart,
+  List
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import LoadingScreen from '@/components/LoadingScreen';
 import { toast } from 'sonner';
 import PlanPurchase from './components/PlanPurchase';
@@ -219,6 +222,43 @@ const PropFirmPage: React.FC = () => {
             </div>
           </div>
 
+          {/* Quick Navigation */}
+          <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5">
+            <CardContent className="p-6">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <BarChart3 className="w-5 h-5" />
+                Quick Navigation
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Link to="/instruments">
+                  <Button variant="outline" className="w-full justify-start h-auto py-4">
+                    <BarChart3 className="w-5 h-5 mr-3" />
+                    <div className="text-left">
+                      <div className="font-semibold">Browse Instruments</div>
+                      <div className="text-xs text-muted-foreground">Search and view all trading assets</div>
+                    </div>
+                  </Button>
+                </Link>
+                <Link to="/admin/watchlists">
+                  <Button variant="outline" className="w-full justify-start h-auto py-4">
+                    <List className="w-5 h-5 mr-3" />
+                    <div className="text-left">
+                      <div className="font-semibold">Manage Watchlists</div>
+                      <div className="text-xs text-muted-foreground">Create and organize watchlists</div>
+                    </div>
+                  </Button>
+                </Link>
+                <Button variant="outline" className="w-full justify-start h-auto py-4" disabled>
+                  <LineChart className="w-5 h-5 mr-3" />
+                  <div className="text-left">
+                    <div className="font-semibold">View Charts</div>
+                    <div className="text-xs text-muted-foreground">Select asset from watchlist to chart</div>
+                  </div>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Quick Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <Card>
@@ -334,24 +374,40 @@ const PropFirmPage: React.FC = () => {
                         <div className="font-semibold">{account.trading_days}</div>
                       </div>
                     </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1"
-                        onClick={() => handleViewAccountDetails(account.id)}
-                      >
-                        <Eye className="w-4 h-4 mr-2" />
-                        View Details
-                      </Button>
-                      <Button
-                        size="sm"
-                        className="flex-1"
+                    <div className="flex flex-col gap-2">
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => handleViewAccountDetails(account.id)}
+                        >
+                          <Eye className="w-4 h-4 mr-2" />
+                          View Details
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="flex-1"
                         onClick={() => handleRefreshBalance(account.id)}
                       >
                         <RefreshCw className="w-4 h-4 mr-2" />
                         Refresh
                       </Button>
+                      </div>
+                      <div className="flex gap-2">
+                        <Link to="/instruments" className="flex-1">
+                          <Button variant="outline" size="sm" className="w-full">
+                            <BarChart3 className="w-4 h-4 mr-2" />
+                            Instruments
+                          </Button>
+                        </Link>
+                        <Link to="/admin/watchlists" className="flex-1">
+                          <Button variant="outline" size="sm" className="w-full">
+                            <List className="w-4 h-4 mr-2" />
+                            Watchlists
+                          </Button>
+                        </Link>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>

@@ -68,13 +68,15 @@ const Navbar: React.FC = () => {
     toast.success('Logged Out Successfully');
   };
 
-  const navItems = [
+  // Filter nav items based on user role
+  const allNavItems = [
     {
-      path: '/',
-      label: 'Watchlists',
+      path: '/admin/watchlists',
+      label: 'Admin Dashboard',
       icon: TrendingUp,
-      description: 'Manage your watchlists',
+      description: 'Manage watchlists & assets',
       color: 'from-purple-500 to-pink-500',
+      adminOnly: true,
     },
     {
       path: '/instruments',
@@ -82,6 +84,7 @@ const Navbar: React.FC = () => {
       icon: BarChart3,
       description: 'Trading instruments',
       color: 'from-green-500 to-emerald-500',
+      adminOnly: false,
     },
     {
       path: '/prop-firm',
@@ -89,6 +92,7 @@ const Navbar: React.FC = () => {
       icon: DollarSign,
       description: 'Proprietary trading',
       color: 'from-yellow-500 to-orange-500',
+      adminOnly: false,
     },
     {
       path: '/contact',
@@ -96,8 +100,11 @@ const Navbar: React.FC = () => {
       icon: Mail,
       description: 'Help & contact',
       color: 'from-indigo-500 to-purple-500',
+      adminOnly: false,
     },
   ];
+
+  const navItems = allNavItems.filter(item => !item.adminOnly || user?.is_admin);
 
   if (!access_token) return null;
 

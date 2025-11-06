@@ -19,6 +19,7 @@ import { usePageTracking } from '@/hooks/usePageTracking';
 
 // Lazy load pages
 const GraphsPage = lazy(() => import('./features/graphs'));
+const HomePage = lazy(() => import('./features/home'));
 const AccountsPage = lazy(() => import('./features/accounts'));
 const ContactPage = lazy(() => import('./features/contact'));
 const LoginRegPage = lazy(() => import('./features/auth'));
@@ -56,6 +57,14 @@ const PrivateRoute: React.FC<{ element: React.ReactElement }> = ({
 }) => {
   const accessToken = useAppSelector(getCurrentToken);
   return accessToken ? element : <Navigate to="/login" />;
+};
+
+// AdminRoute Component
+const AdminRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
+  const user = useAppSelector(getLoggedInUser);
+  const accessToken = useAppSelector(getCurrentToken);
+  if (!accessToken) return <Navigate to="/login" />;
+  return user?.is_admin ? element : <Navigate to="/prop-firm" />;
 };
 
 export default function App() {
@@ -175,13 +184,14 @@ export default function App() {
   }
 
   const routes = [
-    { path: '/', element: <WatchlistsPage />, private: true },
+    { path: '/', element: <HomePage />, private: false },
     { path: '/profile', element: <ProfilePage />, private: true },
     { path: '/instruments', element: <AssetsPage />, private: true },
     { path: '/instruments/:id', element: <AssetDetailPage />, private: true },
     { path: '/graphs/:id', element: <GraphsPage />, private: true },
     { path: '/accounts', element: <AccountsPage />, private: true },
     { path: '/prop-firm', element: <PropFirmPage />, private: true },
+    { path: '/admin/watchlists', element: <WatchlistsPage />, private: 'admin' },
     { path: '/contact', element: <ContactPage />, private: true },
     { path: '/privacy', element: <PrivacyPage />, private: false },
     { path: '/terms', element: <TermsPage />, private: false },
@@ -205,7 +215,11 @@ export default function App() {
                     key={path}
                     path={path}
                     element={
-                      isPrivate ? <PrivateRoute element={element} /> : element
+                      isPrivate === true
+                        ? <PrivateRoute element={element} />
+                        : isPrivate === 'admin'
+                          ? <AdminRoute element={element} />
+                          : element
                     }
                   />
                 ))}

@@ -187,7 +187,7 @@ export default function App() {
   const routes = [
     { 
       path: '/', 
-      element: <Navigate to={loggedInUser?.is_admin ? '/admin/watchlists' : '/prop-firm'} replace />, 
+      element: <Navigate to={loggedInUser?.is_admin ? '/admin/dashboard' : '/prop-firm'} replace />, 
       private: true 
     },
     { path: '/profile', element: <ProfilePage />, private: true },

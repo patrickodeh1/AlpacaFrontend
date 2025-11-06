@@ -84,6 +84,12 @@ const getNavItems = (isAdmin: boolean) =>
           description: 'General watchlists',
         },
         {
+          path: '/instruments',
+          label: 'Instruments',
+          icon: BarChart3,
+          description: 'Trading instruments',
+        },
+        {
           path: '/contact',
           label: 'Support',
           icon: Mail,

@@ -121,7 +121,11 @@ export default function Registration() {
       })
     );
 
-    navigate('/prop-firm');
+    if (user?.is_admin) {
+      navigate('/admin/dashboard');
+    } else {
+      navigate('/prop-firm');
+    }
   };
 
   return (

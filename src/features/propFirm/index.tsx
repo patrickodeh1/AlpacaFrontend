@@ -278,12 +278,12 @@ const PropFirmPage: React.FC = () => {
                 Quick Navigation
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-                <Link to="/prop-firm">
+                <Link to="/watchlists">
                   <Button variant="outline" className="w-full justify-center h-auto py-4">
                     <BarChart3 className="w-5 h-5 mr-3" />
                     <div className="text-left">
                       <div className="font-semibold">Trading Dashboard</div>
-                      <div className="text-xs text-muted-foreground">Manage your trading accounts</div>
+                      <div className="text-xs text-muted-foreground">Manage your watchlists</div>
                     </div>
                   </Button>
                 </Link>
@@ -291,15 +291,7 @@ const PropFirmPage: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* Global watchlists for traders (admin lists shown as general lists) */}
-          <Card>
-            <CardHeader>
-              <CardTitle>General Watchlists</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <GlobalWatchlistsList />
-            </CardContent>
-          </Card>
+
 
           {/* Quick Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">

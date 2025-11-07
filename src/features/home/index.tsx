@@ -244,38 +244,7 @@ const HomePage: React.FC = () => {
     </div>
   );
 
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Starter Account</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm text-muted-foreground">
-            <p>Evaluation phase with daily loss and max drawdown limits.</p>
-            <p>Trade equities and crypto with paper trading execution.</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Advanced Account</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm text-muted-foreground">
-            <p>Higher capital, tighter rules, and profit targets.</p>
-            <p>Comprehensive analytics and live charts.</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Pro Account</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm text-muted-foreground">
-            <p>Top-tier accounts for consistent traders.</p>
-            <p>Payouts on passing evaluation.</p>
-          </CardContent>
-        </Card>
-      </section>
-    </div>
-  );
-};
+}
 
 export default HomePage;
 

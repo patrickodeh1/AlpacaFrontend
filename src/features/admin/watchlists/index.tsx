@@ -1,13 +1,13 @@
+
+
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { 
-  useGetWatchListQuery, 
+import {
   useGetWatchListsQuery,
   useCreateWatchListMutation,
   useUpdateWatchListMutation,
   useDeleteWatchListMutation,
   useGetGlobalWatchListsQuery
-} from '@/shared/api/watchlistService';
+} from '@/api/watchlistService';
 import {
   PageLayout,
   PageHeader,
@@ -36,10 +36,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Loader2, Plus, MoreHorizontal, ListPlus, Globe, Lock, Pencil, Trash } from 'lucide-react';
+import { Loader2, Plus, MoreHorizontal, Globe, Lock, Pencil, Trash } from 'lucide-react';
 import { toast } from 'sonner';
-import { useAppSelector } from '@/app/hooks';
-import { getLoggedInUser } from '@/features/auth/authSlice';
+import { WatchList } from '@/types/common-types';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 const AdminWatchlistsPage: React.FC = () => {
@@ -48,15 +47,13 @@ const AdminWatchlistsPage: React.FC = () => {
   const [newWatchlistName, setNewWatchlistName] = useState('');
   const [newWatchlistDescription, setNewWatchlistDescription] = useState('');
   const [isGlobal, setIsGlobal] = useState(true);
-  const [selectedWatchlist, setSelectedWatchlist] = useState<any>(null);
+  const [selectedWatchlist, setSelectedWatchlist] = useState<WatchList | null>(null);
 
-  const user = useAppSelector(getLoggedInUser);
-  const { id } = useParams();
+
 
   // Fetch watchlists
-  const { data: watchlistsData, isLoading: isWatchlistsLoading } = useGetWatchListsQuery();
-  const { data: globalWatchlistsData } = useGetGlobalWatchListsQuery();
-  const { data: selectedWatchlistData } = useGetWatchListQuery(parseInt(id || '0'), { skip: !id });
+  const { data: watchlistsData, isLoading: isWatchlistsLoading } = useGetWatchListsQuery({});
+  const { data: globalWatchlistsData } = useGetGlobalWatchListsQuery({});
 
   // Mutations
   const [createWatchlist] = useCreateWatchListMutation();
@@ -91,9 +88,11 @@ const AdminWatchlistsPage: React.FC = () => {
     try {
       await updateWatchlist({
         id: selectedWatchlist.id,
+        data: {
         name: selectedWatchlist.name,
-        description: selectedWatchlist.description,
-        is_global: selectedWatchlist.is_global
+        description: selectedWatchlist.description || '',
+        is_global: selectedWatchlist.is_global || false
+        }
       }).unwrap();
 
       toast.success('Watchlist updated successfully');
@@ -124,7 +123,7 @@ const AdminWatchlistsPage: React.FC = () => {
 
   const watchlists = watchlistsData?.results || [];
   const globalWatchlists = globalWatchlistsData?.results || [];
-  const allWatchlists = [...globalWatchlists, ...watchlists.filter(w => !w.is_global)];
+  // const allWatchlists = [...globalWatchlists, ...watchlists.filter(w => w.is_global !== true)];
 
   return (
     <PageLayout
@@ -266,7 +265,7 @@ const AdminWatchlistsPage: React.FC = () => {
             <CardContent>
               <ScrollArea className="h-[500px] pr-4">
                 <div className="space-y-2">
-                  {watchlists.filter(w => !w.is_global).map((watchlist) => (
+                  {watchlists.filter(w => w.is_global !== true).map((watchlist) => (
                     <div
                       key={watchlist.id}
                       className="flex items-center justify-between p-2 rounded-lg border bg-card hover:bg-accent/50"
@@ -356,7 +355,7 @@ const AdminWatchlistsPage: React.FC = () => {
                     checked={selectedWatchlist.is_global}
                     onCheckedChange={(checked) => setSelectedWatchlist({
                       ...selectedWatchlist,
-                      is_global: checked
+                      is_global: checked === true
                     })}
                   />
                   <Label htmlFor="edit-global">Make watchlist global</Label>

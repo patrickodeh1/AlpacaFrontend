@@ -19,7 +19,7 @@ import { usePageTracking } from '@/hooks/usePageTracking';
 
 // Lazy load pages
 const GraphsPage = lazy(() => import('./features/graphs'));
-const HomePage = lazy(() => import('./features/home'));
+//const HomePage = lazy(() => import('./features/home'));
 const AccountsPage = lazy(() => import('./features/accounts'));
 const ContactPage = lazy(() => import('./features/contact'));
 const LoginRegPage = lazy(() => import('./features/auth'));

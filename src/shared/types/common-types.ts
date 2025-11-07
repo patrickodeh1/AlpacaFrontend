@@ -75,6 +75,7 @@ export interface WatchList {
   name: string;
   description?: string;
   is_active: boolean;
+  is_global?: boolean;
   created_at: string;
   updated_at: string;
   assets: WatchListAsset[];
@@ -253,6 +254,7 @@ export interface CreateWatchListParams {
   name: string;
   description?: string;
   is_active?: boolean;
+  is_global?: boolean;
 }
 
 export interface AddAssetToWatchListParams {

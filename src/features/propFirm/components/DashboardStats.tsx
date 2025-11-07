@@ -5,7 +5,7 @@ import {
   TrendingUp,
   TrendingDown,
   Clock,
-  DollarSign,
+  // DollarSign,
   Activity,
   AlertCircle,
   Percent,

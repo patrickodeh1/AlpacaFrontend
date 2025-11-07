@@ -9,11 +9,6 @@
     "paths": {
       "@/*": ["./src/shared/*"],
       "src/*": ["./src/*"]
-    },
-    "strict": false,
-    "noImplicitAny": false,
-    "skipLibCheck": true,
-    "noEmitOnError": false,
-    "allowSyntheticDefaultImports": true
+    }
   }
 }

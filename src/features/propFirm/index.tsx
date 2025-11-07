@@ -44,37 +44,36 @@ import { Link } from 'react-router-dom';
 import LoadingScreen from '@/components/LoadingScreen';
 import { toast } from 'sonner';
 import PlanPurchase from './components/PlanPurchase';
-import { useGetGlobalWatchListsQuery } from '@/api/watchlistService';
-import { WatchList } from '@/types/common-types';
+
 import { useAppSelector } from 'src/app/hooks';
 import { getLoggedInUser } from '../auth/authSlice';
 
 // Simple list to show global (admin) watchlists for traders
-function GlobalWatchlistsList() {
-  const { data, isLoading } = useGetGlobalWatchListsQuery();
-  const lists = data?.results || [];
-  const user = useAppSelector(getLoggedInUser);
+// function GlobalWatchlistsList() {
+//   const { data, isLoading } = useGetGlobalWatchListsQuery({});
+//   const lists = data?.results || [];
+//   const user = useAppSelector(getLoggedInUser);
 
-  if (isLoading) return <div className="text-sm text-muted-foreground">Loading...</div>;
-  if (lists.length === 0) return <div className="text-sm text-muted-foreground">No general watchlists available</div>;
+//   if (isLoading) return <div className="text-sm text-muted-foreground">Loading...</div>;
+//   if (lists.length === 0) return <div className="text-sm text-muted-foreground">No general watchlists available</div>;
 
-  return (
-    <div className="space-y-1">
-      {lists.map((list: WatchList) => (
-        <Link
-          key={list.id}
-          to={user?.is_admin ? `/admin/watchlists/${list.id}` : `/watchlists/${list.id}`}
-          className="flex items-center justify-between p-2 hover:bg-muted/50 rounded-md"
-        >
-          <div className="flex flex-col">
-            <span className="font-medium">{list.name}</span>
-            <span className="text-xs text-muted-foreground">{list.asset_count} instruments</span>
-          </div>
-        </Link>
-      ))}
-    </div>
-  );
-}
+//   return (
+//     <div className="space-y-1">
+//       {lists.map((list: WatchList) => (
+//         <Link
+//           key={list.id}
+//           to={user?.is_admin ? `/admin/watchlists/${list.id}` : `/watchlists/${list.id}`}
+//           className="flex items-center justify-between p-2 hover:bg-muted/50 rounded-md"
+//         >
+//           <div className="flex flex-col">
+//             <span className="font-medium">{list.name}</span>
+//             <span className="text-xs text-muted-foreground">{list.asset_count} instruments</span>
+//           </div>
+//         </Link>
+//       ))}
+//     </div>
+//   );
+// }
 
 const PropFirmPage: React.FC = () => {
   const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);

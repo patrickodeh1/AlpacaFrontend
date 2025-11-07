@@ -49,7 +49,7 @@ const watchlistApi = baseApi.injectEndpoints({
     // Fetch only global (admin) watchlists. Backend accepts ?global=true.
     getGlobalWatchLists: builder.query<
       PaginatedApiResponse<WatchList>,
-      void
+      Record<string, never>
     >({
       query: () => ({
         url: `/core/watchlists/?global=true`,

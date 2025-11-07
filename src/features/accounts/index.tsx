@@ -25,7 +25,7 @@ const AccountsPage = () => {
   const isAlpacaAccountLoading = useAppSelector(getIsAlpacaAccountLoading);
   const [syncAssets, { isLoading: isSyncing }] = useSyncAssetsMutation();
   const user = useAppSelector(getLoggedInUser);
-  const { data: usersData, isLoading: isUsersLoading } = useGetUsersQuery(undefined, {
+  const { data: usersData, isLoading: isUsersLoading } = useGetUsersQuery({}, {
     skip: !user?.is_admin
   });
   

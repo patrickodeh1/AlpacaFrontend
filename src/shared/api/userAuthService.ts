@@ -6,6 +6,7 @@ import {
   UserRegistration,
   GoogleLoginParams,
   EmailVerificationResponse,
+  ApiResponse,
 } from '../types/common-types';
 
 export const userAuthApi = baseApi.injectEndpoints({
@@ -61,7 +62,7 @@ export const userAuthApi = baseApi.injectEndpoints({
       },
       providesTags: ['User'],
     }),
-    getUsers: builder.query<ApiResponse<User[]>, void>({
+    getUsers: builder.query<ApiResponse<User[]>, Record<string, never>>({
       query: () => ({
         url: '/account/users/',
         method: 'GET',

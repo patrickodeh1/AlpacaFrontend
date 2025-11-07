@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useGetAdminDashboardQuery } from '@/shared/api/propFirmService';
+import { useGetAdminDashboardQuery } from '@/api/propFirmService';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -15,7 +15,7 @@ import {
   DollarSign,
   Target,
   TrendingUp,
-  Calendar,
+  //Calendar,
   Clock,
   CheckCircle,
   XCircle
@@ -24,7 +24,7 @@ import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Link } from 'react-router-dom';
 import LoadingScreen from '@/components/LoadingScreen';
-import { formatCurrency } from '@/lib/formatters';
+//import { formatCurrency } from '@/lib/formatters';
 
 import {
   PageLayout,
@@ -41,6 +41,15 @@ type RecentAccount = {
   status: string;
   created_at: string;
 };
+
+type DashboardData = {
+  users_count: number;
+  accounts_count: number;
+  plans_count: number;
+  payouts_count: number;
+  violations_count: number;
+  recent_accounts: RecentAccount[];
+} | undefined;
 
 const PropFirmAdminDashboard = () => {
   const { data, error, isLoading, refetch } = useGetAdminDashboardQuery();
@@ -72,14 +81,7 @@ const PropFirmAdminDashboard = () => {
     setIsRefetching(false);
   };
 
-  const dashboardData = data?.data || {
-    users_count: 0,
-    accounts_count: 0,
-    plans_count: 0,
-    payouts_count: 0,
-    violations_count: 0,
-    recent_accounts: [],
-  };
+  const dashboardData: DashboardData = data?.data as DashboardData;
 
   return (
     <PageLayout
@@ -114,7 +116,7 @@ const PropFirmAdminDashboard = () => {
                     <p className="text-sm font-medium text-muted-foreground">
                       Total Accounts
                     </p>
-                    <p className="text-2xl font-bold">{dashboardData.accounts_count}</p>
+                    <p className="text-2xl font-bold">{dashboardData?.accounts_count ?? 0}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -133,7 +135,7 @@ const PropFirmAdminDashboard = () => {
                     <p className="text-sm font-medium text-muted-foreground">
                       Active Plans
                     </p>
-                    <p className="text-2xl font-bold">{dashboardData.plans_count}</p>
+                    <p className="text-2xl font-bold">{dashboardData?.plans_count ?? 0}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -152,7 +154,7 @@ const PropFirmAdminDashboard = () => {
                     <p className="text-sm font-medium text-muted-foreground">
                       Total Payouts
                     </p>
-                    <p className="text-2xl font-bold">{dashboardData.payouts_count}</p>
+                    <p className="text-2xl font-bold">{dashboardData?.payouts_count ?? 0}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -171,7 +173,7 @@ const PropFirmAdminDashboard = () => {
                     <p className="text-sm font-medium text-muted-foreground">
                       Rule Violations
                     </p>
-                    <p className="text-2xl font-bold">{dashboardData.violations_count}</p>
+                    <p className="text-2xl font-bold">{dashboardData?.violations_count ?? 0}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -204,7 +206,7 @@ const PropFirmAdminDashboard = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {dashboardData.recent_accounts.map((account: RecentAccount) => (
+                  {dashboardData?.recent_accounts?.map((account: RecentAccount) => (
                     <TableRow key={account.id}>
                       <TableCell className="font-medium">{account.account_number}</TableCell>
                       <TableCell>{account.user_email}</TableCell>

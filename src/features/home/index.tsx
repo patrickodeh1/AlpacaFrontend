@@ -7,13 +7,13 @@ import { motion } from 'framer-motion';
 import {
   TrendingUp,
   Shield,
-  Wallet,
+  // Wallet,
   BarChart2,
   Award,
   Clock,
   DollarSign,
-  Users,
-  LucideTrophy,
+  // Users,
+  // LucideTrophy,
   ChevronRight
 } from 'lucide-react';
 

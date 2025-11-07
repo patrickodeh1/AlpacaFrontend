@@ -168,7 +168,7 @@ export const AppSidebar: React.FC<React.ComponentProps<typeof Sidebar>> = ({
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {getNavItems(user?.is_admin).map(item => {
+              {getNavItems(user?.is_admin ?? false).map(item => {
                 const isActive = location.pathname === item.path;
                 return (
                   <SidebarMenuItem key={item.path}>

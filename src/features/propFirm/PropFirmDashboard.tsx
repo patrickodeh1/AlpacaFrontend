@@ -1,8 +1,9 @@
 import React from 'react';
-import { useGetPropFirmAccountsQuery } from '@/api/propFirmService';
+import { useGetAccountsQuery } from '@/api/propFirmService';
 import { useGetWatchListsQuery, useGetGlobalWatchListsQuery } from '@/api/watchlistService';
-import { useAppSelector } from 'src/app/hooks';
+import { useAppSelector } from '../../app/hooks';
 import { getLoggedInUser } from '../auth/authSlice';
+import { DashboardStats } from './components/DashboardStats';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,14 +25,13 @@ export const PropFirmDashboard: React.FC = () => {
     data: accountsData,
     isLoading: isLoadingAccounts,
     refetch: refetchAccounts,
-  } = useGetPropFirmAccountsQuery({
-    active: activeTab === 'active',
-    check_violations: true,
+  } = useGetAccountsQuery({
+    status: activeTab === 'active' ? 'ACTIVE' : undefined,
   });
 
   // Load both personal and global watchlists and capture refetch functions
   const { data: personalLists, refetch: refetchPersonal } = useGetWatchListsQuery({});
-  const { data: globalLists, refetch: refetchGlobal } = useGetGlobalWatchListsQuery();
+  const { data: globalLists, refetch: refetchGlobal } = useGetGlobalWatchListsQuery({});
 
   const accounts = accountsData?.data || [];
   const personalWatchlists = personalLists?.results || [];
@@ -45,7 +45,7 @@ export const PropFirmDashboard: React.FC = () => {
     <div className="container mx-auto p-6">
       <div className="space-y-6 mb-6">
         <h1 className="text-3xl font-bold">Account Performance</h1>
-        <DashboardStats 
+        <DashboardStats
           accountStats={{
             currentBalance: 105000,
             startingBalance: 100000,

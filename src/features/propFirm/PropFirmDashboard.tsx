@@ -1,5 +1,5 @@
 import React from 'react';
-import { useGetAccountsQuery } from '@/api/propFirmService';
+import { useGetPropFirmAccountsQuery } from '@/api/propFirmService';
 import { useGetWatchListsQuery, useGetGlobalWatchListsQuery } from '@/api/watchlistService';
 import { useAppSelector } from '../../app/hooks';
 import { getLoggedInUser } from '../auth/authSlice';
@@ -25,7 +25,7 @@ export const PropFirmDashboard: React.FC = () => {
     data: accountsData,
     isLoading: isLoadingAccounts,
     refetch: refetchAccounts,
-  } = useGetAccountsQuery({
+  } = useGetPropFirmAccountsQuery({
     status: activeTab === 'active' ? 'ACTIVE' : undefined,
   });
 

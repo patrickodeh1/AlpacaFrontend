@@ -33,16 +33,38 @@ export const paperTradingApi = baseApi.injectEndpoints({
           params,
         };
       },
-      providesTags: result =>
-        result
-          ? [
-              ...result.map(trade => ({
-                type: 'PaperTrade' as const,
-                id: trade.id,
-              })),
-              { type: 'PaperTrade' as const, id: 'LIST' },
-            ]
-          : [{ type: 'PaperTrade' as const, id: 'LIST' }],
+      providesTags: result => {
+        // FIX: Handle non-array responses (errors, null, undefined)
+        if (!result || !Array.isArray(result)) {
+          return [{ type: 'PaperTrade' as const, id: 'LIST' }];
+        }
+        
+        return [
+          ...result.map(trade => ({
+            type: 'PaperTrade' as const,
+            id: trade.id,
+          })),
+          { type: 'PaperTrade' as const, id: 'LIST' },
+        ];
+      },
+      // Transform response to handle API wrapper format
+      transformResponse: (response: any) => {
+        // If response has a 'data' field (your API wrapper), extract it
+        if (response && typeof response === 'object' && 'data' in response) {
+          return Array.isArray(response.data) ? response.data : [];
+        }
+        // If it's already an array, return it
+        if (Array.isArray(response)) {
+          return response;
+        }
+        // Otherwise return empty array
+        return [];
+      },
+      // Add error handling
+      transformErrorResponse: (response: any) => {
+        console.error('Paper trading API error:', response);
+        return response;
+      },
     }),
     createPaperTrade: builder.mutation<PaperTrade, CreatePaperTradePayload>({
       query: body => ({
@@ -50,6 +72,10 @@ export const paperTradingApi = baseApi.injectEndpoints({
         method: 'POST',
         body,
       }),
+      transformResponse: (response: any) => {
+        // Handle API wrapper format
+        return response?.data || response;
+      },
       onQueryStarted: async (_, { dispatch, queryFulfilled }) => {
         try {
           const { data: newTrade } = await queryFulfilled;
@@ -74,6 +100,9 @@ export const paperTradingApi = baseApi.injectEndpoints({
         method: 'POST',
         body,
       }),
+      transformResponse: (response: any) => {
+        return response?.data || response;
+      },
       invalidatesTags: (_results, _error, arg) => [
         { type: 'PaperTrade', id: arg.id },
         { type: 'PaperTrade', id: 'LIST' },
@@ -85,6 +114,9 @@ export const paperTradingApi = baseApi.injectEndpoints({
         method: 'POST',
         body,
       }),
+      transformResponse: (response: any) => {
+        return response?.data || response;
+      },
       invalidatesTags: (_results, _error, arg) => [
         { type: 'PaperTrade', id: arg.id },
         { type: 'PaperTrade', id: 'LIST' },

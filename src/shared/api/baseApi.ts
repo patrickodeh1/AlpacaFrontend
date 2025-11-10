@@ -6,11 +6,14 @@ import {
   fetchBaseQuery,
 } from '@reduxjs/toolkit/query/react';
 import Cookies from 'js-cookie';
+import { getApiBaseUrl } from '@/lib/environment';
 import { getRefreshToken } from './auth';
 import type { RootState } from 'src/app/store';
 
+const API_BASE_URL = getApiBaseUrl().replace(/\/$/, '');
+
 const baseQuery = fetchBaseQuery({
-  baseUrl: (import.meta.env.VITE_API_URL || 'http://localhost:8000/api').replace(/\/$/, ''), // Remove trailing slash from base URL
+  baseUrl: API_BASE_URL,
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as RootState).auth.access;
     if (token) {

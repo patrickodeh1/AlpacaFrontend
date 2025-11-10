@@ -1,19 +1,23 @@
-import React, { useState } from 'react';
-import { useGetPlansQuery, useMockPayMutation } from '@/api/propFirmService';
+import React, { useState, useEffect } from 'react';
+import { useGetPropFirmPlansQuery, useCreateCheckoutSessionMutation } from '@/api/propFirmService';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import {
   CreditCard,
   Target,
   ArrowLeft,
   Lock,
-  Shield
+  Shield,
+  CheckCircle2,
+  XCircle,
+  AlertCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
 import LoadingScreen from '@/components/LoadingScreen';
@@ -22,9 +26,24 @@ interface PlanPurchaseProps {
   onBack?: () => void;
 }
 
+// Helper functions for safe numeric formatting
+const formatCurrency = (value: string | number | undefined | null): string => {
+  if (value === undefined || value === null) return '0.00';
+  const num = typeof value === 'string' ? parseFloat(value) : value;
+  return isNaN(num) ? '0.00' : num.toFixed(2);
+};
+
+const formatNumber = (value: string | number | undefined | null): string => {
+  if (value === undefined || value === null) return '0';
+  const num = typeof value === 'string' ? parseFloat(value) : value;
+  return isNaN(num) ? '0' : num.toString();
+};
+
 const PlanPurchase: React.FC<PlanPurchaseProps> = ({ onBack }) => {
-  const { data: plansData, isLoading: plansLoading } = useGetPlansQuery();
-  const [mockPay] = useMockPayMutation();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { data: plansData, isLoading: plansLoading } = useGetPropFirmPlansQuery();
+  const [createCheckout] = useCreateCheckoutSessionMutation();
 
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
   const [showPurchaseForm, setShowPurchaseForm] = useState(false);
@@ -49,6 +68,26 @@ const PlanPurchase: React.FC<PlanPurchaseProps> = ({ onBack }) => {
   });
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // Handle success/cancel from URL params
+  useEffect(() => {
+    const success = searchParams.get('success');
+    const canceled = searchParams.get('canceled');
+
+    if (success === 'true') {
+      toast.success('Payment successful! Your account is being set up.', {
+        duration: 5000,
+      });
+      // Clear the URL params
+      navigate('/app/prop-firm', { replace: true });
+    } else if (canceled === 'true') {
+      toast.error('Payment was canceled. You can try again anytime.', {
+        duration: 4000,
+      });
+      // Clear the URL params
+      navigate('/app/prop-firm', { replace: true });
+    }
+  }, [searchParams, navigate]);
+
   if (plansLoading) {
     return <LoadingScreen />;
   }
@@ -62,7 +101,6 @@ const PlanPurchase: React.FC<PlanPurchaseProps> = ({ onBack }) => {
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Validate form
     const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'address', 'city', 'state', 'zipCode'];
     const missingFields = requiredFields.filter(field => !purchaseForm[field as keyof typeof purchaseForm]);
 
@@ -79,44 +117,32 @@ const PlanPurchase: React.FC<PlanPurchaseProps> = ({ onBack }) => {
     setIsProcessing(true);
 
     try {
-      // Simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      // For demo mode we perform a mock payment through the backend.
-      // This is a development-only flow and should be removed when
-      // integrating with real Stripe.
-      await mockPay({
+      // Create checkout session
+      const result = await createCheckout({
         plan_id: selectedPlan.id,
-        billing: {
-          firstName: purchaseForm.firstName,
-          lastName: purchaseForm.lastName,
-          email: purchaseForm.email,
-          phone: purchaseForm.phone,
-          address: purchaseForm.address,
-          city: purchaseForm.city,
-          state: purchaseForm.state,
-          zipCode: purchaseForm.zipCode,
-          country: purchaseForm.country,
-        },
-        card: {
-          cardholderName: paymentForm.cardholderName,
-          cardNumber: paymentForm.cardNumber,
-          expiryMonth: paymentForm.expiryMonth,
-          expiryYear: paymentForm.expiryYear,
-          cvv: paymentForm.cvv,
-        }
+        success_url: `${window.location.origin}/app/prop-firm?success=true`,
+        cancel_url: `${window.location.origin}/app/prop-firm?canceled=true`
       }).unwrap();
 
-      toast.success('Mock payment successful! Account created.');
-      setShowPaymentMock(false);
-      setShowPurchaseForm(false);
-      setSelectedPlan(null);
+      if (result.data?.demo_mode) {
+        // Demo mode - account created without payment
+        toast.success('Account created successfully! (Demo Mode)', {
+          duration: 5000,
+        });
+        setShowPaymentMock(false);
+        setShowPurchaseForm(false);
+        setSelectedPlan(null);
+        navigate('/app/prop-firm');
+      } else if (result.data?.session_url) {
+        // Redirect to Stripe checkout
+        window.location.href = result.data.session_url;
+      } else {
+        toast.error('Failed to create checkout session. Please try again.');
+      }
 
-      // In a real app, you'd redirect to success page or refresh accounts
-      // For now, we'll just show success message
-
-    } catch (error) {
-      toast.error('Payment failed. Please try again.');
+    } catch (error: any) {
+      console.error('Payment error:', error);
+      toast.error(error?.data?.msg || 'Payment failed. Please try again.');
     } finally {
       setIsProcessing(false);
     }
@@ -147,7 +173,7 @@ const PlanPurchase: React.FC<PlanPurchaseProps> = ({ onBack }) => {
           </Button>
         )}
         <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-blue-600 dark:to-blue-400 bg-clip-text text-transparent">
             Purchase Trading Account
           </h1>
           <p className="text-lg text-muted-foreground mt-2">
@@ -156,11 +182,36 @@ const PlanPurchase: React.FC<PlanPurchaseProps> = ({ onBack }) => {
         </div>
       </div>
 
+      {/* Success/Cancel Alerts */}
+      {searchParams.get('success') === 'true' && (
+        <Alert className="border-green-500 bg-green-50 dark:bg-green-950/20">
+          <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
+          <AlertTitle className="text-green-800 dark:text-green-300 font-semibold">
+            Payment Successful!
+          </AlertTitle>
+          <AlertDescription className="text-green-700 dark:text-green-400">
+            Your account is being set up and will be ready shortly. Check your email for confirmation.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {searchParams.get('canceled') === 'true' && (
+        <Alert className="border-yellow-500 bg-yellow-50 dark:bg-yellow-950/20">
+          <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+          <AlertTitle className="text-yellow-800 dark:text-yellow-300 font-semibold">
+            Payment Canceled
+          </AlertTitle>
+          <AlertDescription className="text-yellow-700 dark:text-yellow-400">
+            Your payment was canceled. No charges were made. You can try again whenever you're ready.
+          </AlertDescription>
+        </Alert>
+      )}
+
       {!showPurchaseForm ? (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {plans.map((plan) => (
-              <Card key={plan.id} className="hover:shadow-lg transition-shadow">
+            {plans.map((plan: any) => (
+              <Card key={plan.id} className="hover:shadow-lg transition-shadow border-2 hover:border-primary/50">
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
                     {plan.name}
@@ -171,28 +222,30 @@ const PlanPurchase: React.FC<PlanPurchaseProps> = ({ onBack }) => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="text-3xl font-bold text-primary">
-                    ${plan.price}
+                    ${formatCurrency(plan.price)}
                   </div>
                   <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span>Starting Balance:</span>
-                      <span className="font-semibold">${plan.starting_balance}</span>
+                    <div className="flex justify-between py-1 border-b border-border/50">
+                      <span className="text-muted-foreground">Starting Balance:</span>
+                      <span className="font-semibold">${formatCurrency(plan.starting_balance)}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span>Max Daily Loss:</span>
-                      <span className="font-semibold">{plan.max_daily_loss}%</span>
+                    <div className="flex justify-between py-1 border-b border-border/50">
+                      <span className="text-muted-foreground">Max Daily Loss:</span>
+                      <span className="font-semibold">{formatNumber(plan.max_daily_loss)}%</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span>Max Total Loss:</span>
-                      <span className="font-semibold">{plan.max_total_loss}%</span>
+                    <div className="flex justify-between py-1 border-b border-border/50">
+                      <span className="text-muted-foreground">Max Total Loss:</span>
+                      <span className="font-semibold">{formatNumber(plan.max_total_loss)}%</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span>Profit Target:</span>
-                      <span className="font-semibold">{plan.profit_target || 'N/A'}%</span>
+                    <div className="flex justify-between py-1 border-b border-border/50">
+                      <span className="text-muted-foreground">Profit Target:</span>
+                      <span className="font-semibold">
+                        {plan.profit_target ? `${formatNumber(plan.profit_target)}%` : 'N/A'}
+                      </span>
                     </div>
-                    <div className="flex justify-between">
-                      <span>Min Trading Days:</span>
-                      <span className="font-semibold">{plan.min_trading_days}</span>
+                    <div className="flex justify-between py-1">
+                      <span className="text-muted-foreground">Min Trading Days:</span>
+                      <span className="font-semibold">{formatNumber(plan.min_trading_days)}</span>
                     </div>
                   </div>
                   <Button
@@ -210,7 +263,7 @@ const PlanPurchase: React.FC<PlanPurchaseProps> = ({ onBack }) => {
       ) : (
         <div className="max-w-2xl mx-auto space-y-6">
           {/* Plan Summary */}
-          <Card>
+          <Card className="border-2 border-primary/20">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Target className="w-5 h-5" />
@@ -219,21 +272,23 @@ const PlanPurchase: React.FC<PlanPurchaseProps> = ({ onBack }) => {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="text-muted-foreground">Price:</span>
-                  <div className="font-semibold text-lg">${selectedPlan?.price}</div>
+                <div className="p-3 bg-muted/50 rounded-lg">
+                  <span className="text-muted-foreground block mb-1">Price:</span>
+                  <div className="font-semibold text-lg">${formatCurrency(selectedPlan?.price)}</div>
                 </div>
-                <div>
-                  <span className="text-muted-foreground">Starting Balance:</span>
-                  <div className="font-semibold">${selectedPlan?.starting_balance}</div>
+                <div className="p-3 bg-muted/50 rounded-lg">
+                  <span className="text-muted-foreground block mb-1">Starting Balance:</span>
+                  <div className="font-semibold">${formatCurrency(selectedPlan?.starting_balance)}</div>
                 </div>
-                <div>
-                  <span className="text-muted-foreground">Profit Target:</span>
-                  <div className="font-semibold">{selectedPlan?.profit_target || 'N/A'}%</div>
+                <div className="p-3 bg-muted/50 rounded-lg">
+                  <span className="text-muted-foreground block mb-1">Profit Target:</span>
+                  <div className="font-semibold">
+                    {selectedPlan?.profit_target ? `${formatNumber(selectedPlan.profit_target)}%` : 'N/A'}
+                  </div>
                 </div>
-                <div>
-                  <span className="text-muted-foreground">Min Trading Days:</span>
-                  <div className="font-semibold">{selectedPlan?.min_trading_days}</div>
+                <div className="p-3 bg-muted/50 rounded-lg">
+                  <span className="text-muted-foreground block mb-1">Min Trading Days:</span>
+                  <div className="font-semibold">{formatNumber(selectedPlan?.min_trading_days)}</div>
                 </div>
               </div>
             </CardContent>
@@ -360,17 +415,17 @@ const PlanPurchase: React.FC<PlanPurchaseProps> = ({ onBack }) => {
               </CardContent>
             </Card>
           ) : (
-            /* Mock Payment Form */
+            /* Payment Form */
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <CreditCard className="w-5 h-5" />
                   Payment Information
                 </CardTitle>
-                <Alert>
-                  <Shield className="h-4 w-4" />
-                  <AlertDescription>
-                    This is a demo payment form. In production, this would integrate with Stripe or another payment processor.
+                <Alert className="mt-4 bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800">
+                  <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  <AlertDescription className="text-blue-800 dark:text-blue-300">
+                    Demo mode: If Stripe is not configured, an account will be created without payment.
                   </AlertDescription>
                 </Alert>
               </CardHeader>
@@ -455,19 +510,19 @@ const PlanPurchase: React.FC<PlanPurchaseProps> = ({ onBack }) => {
 
                   <Separator />
 
-                  <div className="space-y-2">
+                  <div className="space-y-2 p-4 bg-muted/50 rounded-lg">
                     <div className="flex justify-between text-sm">
                       <span>Subtotal:</span>
-                      <span>${selectedPlan?.price}</span>
+                      <span>${formatCurrency(selectedPlan?.price)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span>Processing Fee:</span>
                       <span>$0.00</span>
                     </div>
                     <Separator />
-                    <div className="flex justify-between font-semibold">
+                    <div className="flex justify-between font-semibold text-lg">
                       <span>Total:</span>
-                      <span>${selectedPlan?.price}</span>
+                      <span className="text-primary">${formatCurrency(selectedPlan?.price)}</span>
                     </div>
                   </div>
 

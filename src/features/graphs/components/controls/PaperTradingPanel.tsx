@@ -239,6 +239,21 @@ const PaperTradingPanel: React.FC<PaperTradingPanelProps> = ({
         variant: 'destructive',
       });
     }
+    const payload: any = {
+  asset: asset.id,
+  direction,
+  quantity,
+  entry_price: currentPrice.toFixed(2),
+  // Remove entry_at - let backend set it
+  // entry_at: new Date().toISOString(), // REMOVE THIS LINE
+  notes: notes || '',
+};
+
+console.log('Sending trade payload:', payload); // ADD THIS
+
+if (useStopLoss && stopLoss) {
+  payload.stop_loss = stopLoss;
+}
   };
 
   const beginClosingTrade = (trade: PaperTrade) => {

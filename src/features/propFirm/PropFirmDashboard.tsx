@@ -76,7 +76,7 @@ export const PropFirmDashboard: React.FC = () => {
                 globalWatchlists.map((list: WatchList) => (
                   <Link
                     key={list.id}
-                    to={user?.is_admin ? `/admin/watchlists/${list.id}` : `/watchlists/${list.id}`}
+                    to={user?.is_admin ? `/watchlists/${list.id}` : `/watchlists/${list.id}`}
                     className="flex items-center justify-between p-2 hover:bg-muted/50 rounded-md"
                   >
                     <div className="flex flex-col">

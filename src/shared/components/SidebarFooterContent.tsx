@@ -37,7 +37,7 @@ const SidebarFooterContent: React.FC = () => {
                     Alpaca Trading
                   </span>
                   <span className="text-[10px] text-muted-foreground">
-                    © {currentYear} MNK
+                    © {currentYear} Alpaca Trading
                   </span>
                 </div>
               </div>
@@ -96,7 +96,7 @@ const SidebarFooterContent: React.FC = () => {
                   <div className="text-xs">
                     <p className="font-semibold">Alpaca Trading</p>
                     <p className="text-muted-foreground">
-                      © {currentYear} MNK
+                      © {currentYear} Alpaca Trading
                     </p>
                   </div>
                 </TooltipContent>

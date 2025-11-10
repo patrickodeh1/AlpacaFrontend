@@ -58,7 +58,7 @@ const getNavItems = (isAdmin: boolean) =>
   isAdmin
     ? [
         {
-          path: '/',
+          path: '/watchlists',
           label: 'Watchlists',
           icon: TrendingUp,
           description: 'Manage your watchlists',

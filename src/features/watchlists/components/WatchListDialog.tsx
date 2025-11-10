@@ -128,26 +128,6 @@ export const WatchListDialog: React.FC<WatchListDialogProps> = ({
         </DialogHeader>
 
         <form onSubmit={handleSubmit}>
-          {!isEditing && (
-            <Tabs defaultValue="blank" className="w-full">
-              <TabsList className="w-full">
-                <TabsTrigger value="blank" className="w-full">Blank List</TabsTrigger>
-                <TabsTrigger value="seed" className="w-full">Seed from Global</TabsTrigger>
-              </TabsList>
-              <TabsContent value="blank">
-                <div className="py-2 text-sm text-muted-foreground">
-                  Create an empty watchlist and add instruments later.
-                </div>
-              </TabsContent>
-              <TabsContent value="seed" className="space-y-4">
-                <div className="py-2 text-sm text-muted-foreground">
-                  Select a global watchlist to copy its instruments to your new list.
-                </div>
-                <GlobalWatchListsSelect onSelect={setSelectedGlobalList} />
-              </TabsContent>
-            </Tabs>
-          )}
-
           <div className="grid gap-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="name">Name *</Label>

@@ -197,7 +197,6 @@ export default function App() {
     { path: '/accounts', element: <AccountsPage />, private: true },
     { path: '/prop-firm', element: <PropFirmPage />, private: true },
     { path: '/admin/dashboard', element: <AdminDashboardPage />, private: 'admin' },
-    { path: '/admin/watchlists', element: <WatchlistsPage />, private: 'admin' },
     { path: '/watchlists', element: <WatchlistsPage />, private: true },
     { path: '/watchlists/:id', element: <WatchlistsPage />, private: true },
     { path: '/contact', element: <ContactPage />, private: true },

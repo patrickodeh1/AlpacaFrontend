@@ -71,8 +71,8 @@ const Navbar: React.FC = () => {
   // Filter nav items based on user role
   const allNavItems = [
     {
-      path: '/admin/watchlists',
-      label: 'Admin Dashboard',
+      path: '/watchlists',
+      label: 'Watchlist',
       icon: TrendingUp,
       description: 'Manage watchlists & assets',
       color: 'from-purple-500 to-pink-500',

@@ -22,6 +22,8 @@ import AdminUsers from './features/admin/AdminUsers';
 import AdminAccounts from './features/accounts/';
 import AdminPlans from './features/admin/AdminPlans';
 import AdminPayouts from './features/admin/AdminPayouts';
+import AdminAssetsPage from './features/admin/AdminAssetsPage';
+import AdminWatchlistsPage from './features/admin/AdminWatchlistsPage';
 import AdminViolations from './features/admin/AdminViolations';
 
 
@@ -209,6 +211,8 @@ export default function App() {
     { path: '/admin/plans', element: <AdminPlans />, private: 'admin' },
     { path: '/admin/payouts', element: <AdminPayouts />, private: 'admin' },
     { path: '/admin/violations', element: <AdminViolations />, private: 'admin' },
+    {path: '/admin/assets', element: <AdminAssetsPage />, private: 'admin'},
+    {path: '/admin/watchlists', element: <AdminWatchlistsPage />, private: 'admin'},
     { path: '/watchlists', element: <WatchlistsPage />, private: true },
     { path: '/watchlists/:id', element: <WatchlistsPage />, private: true },
     { path: '/contact', element: <ContactPage />, private: true },

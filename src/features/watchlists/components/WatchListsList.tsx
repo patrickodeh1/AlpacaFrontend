@@ -7,6 +7,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Plus, Building2, Calendar, AlertCircle } from 'lucide-react';
 import { useGetWatchListsQuery } from '@/api/watchlistService';
 import { WatchList } from '@/types/common-types';
+import { WatchListDialog } from './WatchListDialog';
 
 interface WatchListsListProps {
   onWatchListSelect: (watchlist: WatchList) => void;

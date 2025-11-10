@@ -11,12 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { 
-  Tabs, 
-  TabsContent, 
-  TabsList, 
-  TabsTrigger 
-} from "@/components/ui/tabs";
+
 import { Loader2 } from 'lucide-react';
 import {
   useCreateWatchListMutation,
@@ -24,7 +19,6 @@ import {
   useAddAssetToWatchListMutation,
 } from '@/api/watchlistService';
 import { WatchList, CreateWatchListParams } from '@/types/common-types';
-import { GlobalWatchListsSelect } from './GlobalWatchListsSelect';
 
 interface WatchListDialogProps {
   watchlist?: WatchList;

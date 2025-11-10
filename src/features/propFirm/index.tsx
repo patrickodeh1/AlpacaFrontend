@@ -18,7 +18,7 @@ import AccountCard from './components/AccountCard';
 import PlanCard from './components/PlanCard';
 
 const PropFirmPage: React.FC = () => {
-  const { data: plansData, isLoading: plansLoading } = useGetPropFirmPlansQuery();
+  const { data: plansData, isLoading: plansLoading } = useGetPropFirmPlansQuery(undefined);
   const { data: accountsData, isLoading: accountsLoading } = useGetPropFirmAccountsQuery({});
   const [createCheckout, { isLoading: checkoutLoading }] = useCreateCheckoutSessionMutation();
 

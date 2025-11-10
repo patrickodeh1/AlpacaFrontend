@@ -6,25 +6,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Link } from 'react-router-dom';
 import { 
-  Users, 
-  Wallet, 
-  TrendingUp, 
-  DollarSign, 
-  Activity, 
-  ExternalLink,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  BarChart3,
-  Settings,
-  Eye
+  Users, Wallet, DollarSign, Activity, 
+  ExternalLink, AlertTriangle, CheckCircle, Clock,
+  BarChart3, Settings, Eye
 } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const AdminDashboard: React.FC = () => {
-  const { data, isLoading, error, refetch } = useGetAdminDashboardQuery();
+  const { data, isLoading, error, refetch } = useGetAdminDashboardQuery(undefined);
   const [activeTab, setActiveTab] = useState('overview');
 
   if (isLoading) return <LoadingScreen />;
@@ -37,7 +28,9 @@ const AdminDashboard: React.FC = () => {
             <AlertTriangle className="w-6 h-6" />
             <h2 className="text-xl font-semibold">Failed to load dashboard data</h2>
           </div>
-          <p className="text-sm mb-4">Please check that the backend server is running and you have admin access.</p>
+          <p className="text-sm mb-4">
+            Please check that the backend server is running and you have admin access.
+          </p>
           <Button onClick={() => refetch()} variant="outline" size="sm">
             Retry
           </Button>
@@ -46,7 +39,8 @@ const AdminDashboard: React.FC = () => {
     );
   }
 
-  const payload = (data?.data || {}) as Record<string, any>;
+  // Handle both response structures
+  const payload = data || {};
   const recentAccounts = (payload.recent_accounts || []) as Array<any>;
   const recentViolations = (payload.recent_violations || []) as Array<any>;
   const revenueStats = (payload.revenue_stats || {}) as Record<string, any>;
@@ -58,7 +52,7 @@ const AdminDashboard: React.FC = () => {
       icon: Users,
       color: 'text-blue-500',
       bgColor: 'bg-blue-500/10',
-      link: '/admin/account/user/',
+      link: '/admin/users',
     },
     {
       title: 'Active Accounts',
@@ -66,7 +60,7 @@ const AdminDashboard: React.FC = () => {
       icon: Wallet,
       color: 'text-green-500',
       bgColor: 'bg-green-500/10',
-      link: '/admin/prop_firm/propfirmaccount/',
+      link: '/admin/accounts',
     },
     {
       title: 'Total Plans',
@@ -74,7 +68,7 @@ const AdminDashboard: React.FC = () => {
       icon: BarChart3,
       color: 'text-purple-500',
       bgColor: 'bg-purple-500/10',
-      link: '/admin/prop_firm/propfirmplan/',
+      link: '/admin/plans',
     },
     {
       title: 'Pending Payouts',
@@ -82,7 +76,7 @@ const AdminDashboard: React.FC = () => {
       icon: DollarSign,
       color: 'text-orange-500',
       bgColor: 'bg-orange-500/10',
-      link: '/admin/prop_firm/payout/',
+      link: '/admin/payouts',
     },
   ];
 
@@ -128,18 +122,64 @@ const AdminDashboard: React.FC = () => {
               </CardHeader>
             </Card>
 
-            {/* Quick Links */}
+            {/* Admin Management Links */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Admin Pages</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <Link to="/admin/users">
+                  <Button variant="ghost" className="w-full justify-start" size="sm">
+                    <Users className="w-4 h-4 mr-2" />
+                    Users
+                  </Button>
+                </Link>
+                <Link to="/admin/accounts">
+                  <Button variant="ghost" className="w-full justify-start" size="sm">
+                    <Wallet className="w-4 h-4 mr-2" />
+                    Accounts
+                  </Button>
+                </Link>
+                <Link to="/admin/plans">
+                  <Button variant="ghost" className="w-full justify-start" size="sm">
+                    <BarChart3 className="w-4 h-4 mr-2" />
+                    Plans
+                  </Button>
+                </Link>
+                <Link to="/admin/payouts">
+                  <Button variant="ghost" className="w-full justify-start" size="sm">
+                    <DollarSign className="w-4 h-4 mr-2" />
+                    Payouts
+                  </Button>
+                </Link>
+                <Link to="/admin/violations">
+                  <Button variant="ghost" className="w-full justify-start" size="sm">
+                    <AlertTriangle className="w-4 h-4 mr-2" />
+                    Violations
+                  </Button>
+                </Link>
+                <Separator className="my-2" />
+                <Link to="/admin/assets">
+                  <Button variant="ghost" className="w-full justify-start" size="sm">
+                    <Activity className="w-4 h-4 mr-2" />
+                    Assets
+                  </Button>
+                </Link>
+                <Link to="/admin/watchlists">
+                  <Button variant="ghost" className="w-full justify-start" size="sm">
+                    <Eye className="w-4 h-4 mr-2" />
+                    Watchlists
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+
+            {/* Quick Access Links */}
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">Quick Access</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                <Link to="/accounts">
-                  <Button variant="ghost" className="w-full justify-start" size="sm">
-                    <Users className="w-4 h-4 mr-2" />
-                    Users & Accounts
-                  </Button>
-                </Link>
                 <Link to="/instruments">
                   <Button variant="ghost" className="w-full justify-start" size="sm">
                     <BarChart3 className="w-4 h-4 mr-2" />
@@ -149,7 +189,7 @@ const AdminDashboard: React.FC = () => {
                 <Link to="/watchlists">
                   <Button variant="ghost" className="w-full justify-start" size="sm">
                     <Eye className="w-4 h-4 mr-2" />
-                    Watchlists
+                    User Watchlists
                   </Button>
                 </Link>
                 <Link to="/prop-firm">
@@ -293,11 +333,11 @@ const AdminDashboard: React.FC = () => {
                     <div>
                       <p className="text-sm text-muted-foreground mb-1">{stat.title}</p>
                       <p className="text-3xl font-bold mb-2">{stat.value}</p>
-                      <a href={stat.link} target="_blank" rel="noreferrer">
+                      <Link to={stat.link}>
                         <Button variant="ghost" size="sm" className="text-xs p-0 h-auto">
                           View Details <ExternalLink className="w-3 h-3 ml-1" />
                         </Button>
-                      </a>
+                      </Link>
                     </div>
                   </CardContent>
                 </Card>
@@ -352,16 +392,12 @@ const AdminDashboard: React.FC = () => {
                               {new Date(acc.created_at).toLocaleDateString()}
                             </TableCell>
                             <TableCell>
-                              <a
-                                href={`/admin/prop_firm/propfirmaccount/${acc.id}/change/`}
-                                target="_blank"
-                                rel="noreferrer"
-                              >
+                              <Link to={`/admin/accounts/${acc.id}`}>
                                 <Button size="sm" variant="outline">
-                                  <ExternalLink className="w-3 h-3 mr-1" />
-                                  Open
+                                  <Eye className="w-3 h-3 mr-1" />
+                                  View
                                 </Button>
-                              </a>
+                              </Link>
                             </TableCell>
                           </TableRow>
                         ))
@@ -412,16 +448,12 @@ const AdminDashboard: React.FC = () => {
                               {new Date(viol.created_at).toLocaleDateString()}
                             </TableCell>
                             <TableCell>
-                              <a
-                                href={`/admin/prop_firm/ruleviolation/${viol.id}/change/`}
-                                target="_blank"
-                                rel="noreferrer"
-                              >
+                              <Link to="/admin/violations">
                                 <Button size="sm" variant="outline">
-                                  <ExternalLink className="w-3 h-3 mr-1" />
+                                  <Eye className="w-3 h-3 mr-1" />
                                   View
                                 </Button>
-                              </a>
+                              </Link>
                             </TableCell>
                           </TableRow>
                         ))

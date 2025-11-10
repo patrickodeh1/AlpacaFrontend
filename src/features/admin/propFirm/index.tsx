@@ -52,7 +52,7 @@ type DashboardData = {
 } | undefined;
 
 const PropFirmAdminDashboard = () => {
-  const { data, error, isLoading, refetch } = useGetAdminDashboardQuery();
+  const { data, error, isLoading, refetch } = useGetAdminDashboardQuery(undefined);
 
   const [isRefetching, setIsRefetching] = useState(false);
 

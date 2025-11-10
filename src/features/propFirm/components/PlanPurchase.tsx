@@ -16,7 +16,6 @@ import {
   Lock,
   Shield,
   CheckCircle2,
-  XCircle,
   AlertCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -42,7 +41,7 @@ const formatNumber = (value: string | number | undefined | null): string => {
 const PlanPurchase: React.FC<PlanPurchaseProps> = ({ onBack }) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { data: plansData, isLoading: plansLoading } = useGetPropFirmPlansQuery();
+  const { data: plansData, isLoading: plansLoading } = useGetPropFirmPlansQuery(undefined);
   const [createCheckout] = useCreateCheckoutSessionMutation();
 
   const [selectedPlan, setSelectedPlan] = useState<any>(null);

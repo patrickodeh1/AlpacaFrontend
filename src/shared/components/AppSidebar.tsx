@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import {
   TrendingUp,
   BarChart3,
+  DollarSign,
   Mail,
   User,
   Settings,
@@ -58,6 +59,20 @@ const getNavItems = (isAdmin: boolean) =>
   isAdmin
     ? [
         {
+          path: '/admin',
+          label: 'Admin Dashboard',
+          icon: Settings,
+          description: 'System management',
+        },
+      
+        {
+          path: '/prop-firm',
+          label: 'Traders Dashboard',
+          icon: DollarSign,
+          description: 'Prop trading accounts',
+        },
+
+        {
           path: '/watchlists',
           label: 'Watchlists',
           icon: TrendingUp,
@@ -77,6 +92,12 @@ const getNavItems = (isAdmin: boolean) =>
         },
       ]
     : [
+        {
+          path: '/prop-firm',
+          label: 'Dashboard',
+          icon: DollarSign,
+          description: 'Prop trading accounts',
+        },
         {
           path: '/watchlists',
           label: 'Watchlists',

@@ -28,7 +28,7 @@ const TradingInterface: React.FC<TradingInterfaceProps> = ({ account }) => {
   const [takeProfit, setTakeProfit] = useState('');
   const [notes, setNotes] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
+  const [, setIsSearching] = useState(false);
   const [showWatchlist, setShowWatchlist] = useState(true);
 
   // Get auth token from Redux store

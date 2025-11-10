@@ -17,6 +17,14 @@ import LoadingScreen from './shared/components/LoadingScreen';
 import { initGA4 } from '@/lib/analytics';
 import { usePageTracking } from '@/hooks/usePageTracking';
 
+import AdminDashboard from './features/admin/index';
+import AdminUsers from './features/admin/AdminUsers';
+import AdminAccounts from './features/accounts/';
+import AdminPlans from './features/admin/AdminPlans';
+import AdminPayouts from './features/admin/AdminPayouts';
+import AdminViolations from './features/admin/AdminViolations';
+
+
 // Lazy load pages
 const GraphsPage = lazy(() => import('./features/graphs'));
 //const HomePage = lazy(() => import('./features/home'));
@@ -31,7 +39,6 @@ const WatchlistsPage = lazy(() => import('./features/watchlists'));
 const PrivacyPage = lazy(() => import('./features/privacy'));
 const TermsPage = lazy(() => import('./features/terms'));
 const PropFirmPage = lazy(() => import('./features/propFirm'));
-const AdminDashboardPage = lazy(() => import('./features/admin'));
 
 import { checkEnvironment, GOOGLE_CLIENT_ID } from './shared/lib/environment';
 import { ThemeProvider } from './shared/components/ThemeProvider';
@@ -187,7 +194,7 @@ export default function App() {
   const routes = [
     { 
       path: '/', 
-      element: <Navigate to={loggedInUser?.is_admin ? '/admin/dashboard' : '/prop-firm'} replace />, 
+      element: <Navigate to={loggedInUser?.is_admin ? '/admin' : '/prop-firm'} replace />, 
       private: true 
     },
     { path: '/profile', element: <ProfilePage />, private: true },
@@ -196,7 +203,12 @@ export default function App() {
     { path: '/graphs/:id', element: <GraphsPage />, private: true },
     { path: '/accounts', element: <AccountsPage />, private: true },
     { path: '/prop-firm', element: <PropFirmPage />, private: true },
-    { path: '/admin/dashboard', element: <AdminDashboardPage />, private: 'admin' },
+    { path: '/admin', element: <AdminDashboard />, private: 'admin' },
+    { path: '/admin/users', element: <AdminUsers />, private: 'admin' },
+    { path: '/admin/accounts', element: <AdminAccounts />, private: 'admin' },
+    { path: '/admin/plans', element: <AdminPlans />, private: 'admin' },
+    { path: '/admin/payouts', element: <AdminPayouts />, private: 'admin' },
+    { path: '/admin/violations', element: <AdminViolations />, private: 'admin' },
     { path: '/watchlists', element: <WatchlistsPage />, private: true },
     { path: '/watchlists/:id', element: <WatchlistsPage />, private: true },
     { path: '/contact', element: <ContactPage />, private: true },

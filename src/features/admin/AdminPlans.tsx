@@ -1,4 +1,4 @@
-// src/features/admin/AdminPlans.tsx - FIXED WITH CORRECT FIELD NAMES
+// src/features/admin/AdminPlans.tsx - FIXED WITH CORRECT FIELD NAMES AND HOISTED FORM
 import React, { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
@@ -73,6 +73,188 @@ const defaultFormData: PlanFormData = {
   leverage: '1',
   is_active: true,
 };
+
+// --- START: Hoisted PlanForm Component ---
+
+interface PlanFormProps {
+    formData: PlanFormData;
+    editingPlan: any;
+    isCreatingPlan: boolean;
+    isUpdatingPlan: boolean;
+    handleFieldChange: (field: keyof PlanFormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+    handleCheckboxChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    handleUpdate: (e: React.FormEvent) => Promise<void>;
+    handleCreate: (e: React.FormEvent) => Promise<void>;
+    closeFormDialog: () => void;
+}
+
+const PlanForm: React.FC<PlanFormProps> = ({
+    formData,
+    editingPlan,
+    isCreatingPlan,
+    isUpdatingPlan,
+    handleFieldChange,
+    handleCheckboxChange,
+    handleUpdate,
+    handleCreate,
+    closeFormDialog,
+}) => (
+    <form onSubmit={editingPlan ? handleUpdate : handleCreate} className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div className="col-span-2">
+          <Label>Plan Name *</Label>
+          <Input
+            value={formData.name}
+            onChange={handleFieldChange('name')}
+            placeholder="e.g. $10K Challenge"
+            required
+          />
+        </div>
+
+        <div className="col-span-2">
+          <Label>Description</Label>
+          <Textarea
+            value={formData.description}
+            onChange={handleFieldChange('description')}
+            placeholder="Plan description..."
+            rows={3}
+          />
+        </div>
+
+        <div>
+          <Label>Starting Balance ($) *</Label>
+          <Input
+            type="number"
+            step="0.01"
+            value={formData.starting_balance}
+            onChange={handleFieldChange('starting_balance')}
+            placeholder="10000"
+            required
+          />
+        </div>
+
+        <div>
+          <Label>Price ($) *</Label>
+          <Input
+            type="number"
+            step="0.01"
+            value={formData.price}
+            onChange={handleFieldChange('price')}
+            placeholder="99"
+            required
+          />
+        </div>
+
+        <div>
+          <Label>Max Daily Loss ($) *</Label>
+          <Input
+            type="number"
+            step="0.01"
+            value={formData.max_daily_loss}
+            onChange={handleFieldChange('max_daily_loss')}
+            placeholder="500"
+            required
+          />
+        </div>
+
+        <div>
+          <Label>Max Total Loss ($) *</Label>
+          <Input
+            type="number"
+            step="0.01"
+            value={formData.max_total_loss}
+            onChange={handleFieldChange('max_total_loss')}
+            placeholder="1000"
+            required
+          />
+        </div>
+
+        <div>
+          <Label>Profit Target ($) *</Label>
+          <Input
+            type="number"
+            step="0.01"
+            value={formData.profit_target}
+            onChange={handleFieldChange('profit_target')}
+            placeholder="1000"
+            required
+          />
+        </div>
+
+        <div>
+          <Label>Min Trading Days *</Label>
+          <Input
+            type="number"
+            value={formData.min_trading_days}
+            onChange={handleFieldChange('min_trading_days')}
+            placeholder="5"
+            required
+          />
+        </div>
+
+        <div>
+          <Label>Max Position Size ($) *</Label>
+          <Input
+            type="number"
+            step="0.01"
+            value={formData.max_position_size}
+            onChange={handleFieldChange('max_position_size')}
+            placeholder="5000"
+            required
+          />
+        </div>
+
+        <div>
+          <Label>Profit Split (%) *</Label>
+          <Input
+            type="number"
+            value={formData.profit_split}
+            onChange={handleFieldChange('profit_split')}
+            placeholder="80"
+            min="0"
+            max="100"
+            required
+          />
+        </div>
+
+        <div>
+          <Label>Leverage *</Label>
+          <Input
+            type="number"
+            value={formData.leverage}
+            onChange={handleFieldChange('leverage')}
+            placeholder="1"
+            min="1"
+            max="10"
+            required
+          />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="is_active"
+            checked={formData.is_active}
+            onChange={handleCheckboxChange}
+            className="w-4 h-4"
+          />
+          <Label htmlFor="is_active">Active Plan</Label>
+        </div>
+      </div>
+
+      <DialogFooter>
+        <Button type="button" variant="outline" onClick={closeFormDialog}>
+          Cancel
+        </Button>
+        <Button type="submit" disabled={isCreatingPlan || isUpdatingPlan}>
+          {(isCreatingPlan || isUpdatingPlan) ? 'Saving...' : editingPlan ? 'Update Plan' : 'Create Plan'}
+        </Button>
+      </DialogFooter>
+    </form>
+);
+
+// --- END: Hoisted PlanForm Component ---
+
 
 const AdminPlans: React.FC = () => {
   const [viewingPlan, setViewingPlan] = useState<any>(null);
@@ -228,161 +410,6 @@ const AdminPlans: React.FC = () => {
       </PageLayout>
     );
   }
-
-  const PlanForm = () => (
-    <form onSubmit={editingPlan ? handleUpdate : handleCreate} className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
-        <div className="col-span-2">
-          <Label>Plan Name *</Label>
-          <Input
-            value={formData.name}
-            onChange={handleFieldChange('name')}
-            placeholder="e.g. $10K Challenge"
-            required
-          />
-        </div>
-
-        <div className="col-span-2">
-          <Label>Description</Label>
-          <Textarea
-            value={formData.description}
-            onChange={handleFieldChange('description')}
-            placeholder="Plan description..."
-            rows={3}
-          />
-        </div>
-
-        <div>
-          <Label>Starting Balance ($) *</Label>
-          <Input
-            type="number"
-            step="0.01"
-            value={formData.starting_balance}
-            onChange={handleFieldChange('starting_balance')}
-            placeholder="10000"
-            required
-          />
-        </div>
-
-        <div>
-          <Label>Price ($) *</Label>
-          <Input
-            type="number"
-            step="0.01"
-            value={formData.price}
-            onChange={handleFieldChange('price')}
-            placeholder="99"
-            required
-          />
-        </div>
-
-        <div>
-          <Label>Max Daily Loss ($) *</Label>
-          <Input
-            type="number"
-            step="0.01"
-            value={formData.max_daily_loss}
-            onChange={handleFieldChange('max_daily_loss')}
-            placeholder="500"
-            required
-          />
-        </div>
-
-        <div>
-          <Label>Max Total Loss ($) *</Label>
-          <Input
-            type="number"
-            step="0.01"
-            value={formData.max_total_loss}
-            onChange={handleFieldChange('max_total_loss')}
-            placeholder="1000"
-            required
-          />
-        </div>
-
-        <div>
-          <Label>Profit Target ($) *</Label>
-          <Input
-            type="number"
-            step="0.01"
-            value={formData.profit_target}
-            onChange={handleFieldChange('profit_target')}
-            placeholder="1000"
-            required
-          />
-        </div>
-
-        <div>
-          <Label>Min Trading Days *</Label>
-          <Input
-            type="number"
-            value={formData.min_trading_days}
-            onChange={handleFieldChange('min_trading_days')}
-            placeholder="5"
-            required
-          />
-        </div>
-
-        <div>
-          <Label>Max Position Size ($) *</Label>
-          <Input
-            type="number"
-            step="0.01"
-            value={formData.max_position_size}
-            onChange={handleFieldChange('max_position_size')}
-            placeholder="5000"
-            required
-          />
-        </div>
-
-        <div>
-          <Label>Profit Split (%) *</Label>
-          <Input
-            type="number"
-            value={formData.profit_split}
-            onChange={handleFieldChange('profit_split')}
-            placeholder="80"
-            min="0"
-            max="100"
-            required
-          />
-        </div>
-
-        <div>
-          <Label>Leverage *</Label>
-          <Input
-            type="number"
-            value={formData.leverage}
-            onChange={handleFieldChange('leverage')}
-            placeholder="1"
-            min="1"
-            max="10"
-            required
-          />
-        </div>
-
-        <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            id="is_active"
-            checked={formData.is_active}
-            onChange={handleCheckboxChange}
-            className="w-4 h-4"
-          />
-          <Label htmlFor="is_active">Active Plan</Label>
-        </div>
-      </div>
-
-      <DialogFooter>
-        <Button type="button" variant="outline" onClick={closeFormDialog}>
-          Cancel
-        </Button>
-        <Button type="submit" disabled={isCreatingPlan || isUpdatingPlan}>
-          {(isCreatingPlan || isUpdatingPlan) ? 'Saving...' : editingPlan ? 'Update Plan' : 'Create Plan'}
-        </Button>
-      </DialogFooter>
-    </form>
-  );
 
   return (
     <PageLayout
@@ -568,13 +595,23 @@ const AdminPlans: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Create/Edit Plan Dialog */}
+      {/* Create/Edit Plan Dialog - NOW USES HOISTED PlanForm */}
       <Dialog open={isCreating || !!editingPlan} onOpenChange={closeFormDialog}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingPlan ? 'Edit Plan' : 'Create New Plan'}</DialogTitle>
           </DialogHeader>
-          <PlanForm />
+          <PlanForm
+            formData={formData}
+            editingPlan={editingPlan}
+            isCreatingPlan={isCreatingPlan}
+            isUpdatingPlan={isUpdatingPlan}
+            handleFieldChange={handleFieldChange}
+            handleCheckboxChange={handleCheckboxChange}
+            handleUpdate={handleUpdate}
+            handleCreate={handleCreate}
+            closeFormDialog={closeFormDialog}
+          />
         </DialogContent>
       </Dialog>
 

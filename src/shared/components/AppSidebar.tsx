@@ -330,13 +330,6 @@ export const AppSidebar: React.FC<React.ComponentProps<typeof Sidebar>> = ({
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link
-                      to="/accounts"
-                      className="flex items-center gap-2 cursor-pointer"
-                    >
-                      <Settings className="w-4 h-4" />
-                      <span>Accounts</span>
-                    </Link>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />

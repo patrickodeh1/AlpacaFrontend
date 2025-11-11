@@ -17,20 +17,19 @@ import LoadingScreen from './shared/components/LoadingScreen';
 import { initGA4 } from '@/lib/analytics';
 import { usePageTracking } from '@/hooks/usePageTracking';
 
+// Admin pages - import directly (not lazy)
 import AdminDashboard from './features/admin/index';
 import AdminUsers from './features/admin/AdminUsers';
-import AdminAccounts from './features/accounts/';
+import AdminAccounts from './features/admin/AdminAccounts';
 import AdminPlans from './features/admin/AdminPlans';
 import AdminPayouts from './features/admin/AdminPayouts';
 import AdminAssetsPage from './features/admin/AdminAssetsPage';
 import AdminWatchlistsPage from './features/admin/AdminWatchlistsPage';
 import AdminViolations from './features/admin/AdminViolations';
+import AdminTrades from './features/admin/AdminTrades';
 
-
-// Lazy load pages
+// Lazy load user pages
 const GraphsPage = lazy(() => import('./features/graphs'));
-//const HomePage = lazy(() => import('./features/home'));
-const AccountsPage = lazy(() => import('./features/accounts'));
 const ContactPage = lazy(() => import('./features/contact'));
 const LoginRegPage = lazy(() => import('./features/auth'));
 const NotFoundPage = lazy(() => import('./features/notFound'));
@@ -61,6 +60,7 @@ const PageLoadingFallback = () => (
 
 const HEALTH_CHECK_INTERVAL = 120000; // 2 minutes
 const clientId = GOOGLE_CLIENT_ID || '';
+
 // PrivateRoute Component
 const PrivateRoute: React.FC<{ element: React.ReactElement }> = ({
   element,
@@ -97,7 +97,6 @@ export default function App() {
     error: healthCheckError,
     isSuccess: isHealthCheckSuccess,
   } = useCheckHealthQuery(undefined, {
-    // Start polling only after initial health check succeeds
     pollingInterval: hasInitialApiHealthCheck ? HEALTH_CHECK_INTERVAL : 0,
     skip: false,
   });
@@ -123,7 +122,6 @@ export default function App() {
   useEffect(() => {
     checkEnvironment();
 
-    // Only mark loading as complete when initial API health check is done and breeze account (if user is logged in) is done
     if (
       hasInitialApiHealthCheck &&
       !isLoadingComplete &&
@@ -165,7 +163,6 @@ export default function App() {
           status: 'error',
         })
       );
-      // Set this to true even on error so we don't stay in loading forever
       if (!hasInitialApiHealthCheck) {
         setHasInitialApiHealthCheck(true);
       }
@@ -193,35 +190,6 @@ export default function App() {
     return <LoadingScreen />;
   }
 
-  const routes = [
-    { 
-      path: '/', 
-      element: <Navigate to={loggedInUser?.is_admin ? '/admin' : '/prop-firm'} replace />, 
-      private: true 
-    },
-    { path: '/profile', element: <ProfilePage />, private: true },
-    { path: '/instruments', element: <AssetsPage />, private: true },
-    { path: '/instruments/:id', element: <AssetDetailPage />, private: true },
-    { path: '/graphs/:id', element: <GraphsPage />, private: true },
-    { path: '/accounts', element: <AccountsPage />, private: true },
-    { path: '/prop-firm', element: <PropFirmPage />, private: true },
-    { path: '/admin', element: <AdminDashboard />, private: 'admin' },
-    { path: '/admin/users', element: <AdminUsers />, private: 'admin' },
-    { path: '/admin/accounts', element: <AdminAccounts />, private: 'admin' },
-    { path: '/admin/plans', element: <AdminPlans />, private: 'admin' },
-    { path: '/admin/payouts', element: <AdminPayouts />, private: 'admin' },
-    { path: '/admin/violations', element: <AdminViolations />, private: 'admin' },
-    {path: '/admin/assets', element: <AdminAssetsPage />, private: 'admin'},
-    {path: '/admin/watchlists', element: <AdminWatchlistsPage />, private: 'admin'},
-    { path: '/watchlists', element: <WatchlistsPage />, private: true },
-    { path: '/watchlists/:id', element: <WatchlistsPage />, private: true },
-    { path: '/contact', element: <ContactPage />, private: true },
-    { path: '/privacy', element: <PrivacyPage />, private: false },
-    { path: '/terms', element: <TermsPage />, private: false },
-    { path: '/login', element: <LoginRegPage />, private: false },
-    { path: '*', element: <NotFoundPage />, private: false },
-  ];
-
   return (
     <HelmetProvider>
       <BrowserRouter basename="/app">
@@ -233,19 +201,46 @@ export default function App() {
           <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
             <Suspense fallback={<PageLoadingFallback />}>
               <Routes>
-                {routes.map(({ path, element, private: isPrivate }) => (
-                  <Route
-                    key={path}
-                    path={path}
-                    element={
-                      isPrivate === true
-                        ? <PrivateRoute element={element} />
-                        : isPrivate === 'admin'
-                          ? <AdminRoute element={element} />
-                          : element
-                    }
-                  />
-                ))}
+                {/* Root redirect */}
+                <Route
+                  path="/"
+                  element={
+                    <PrivateRoute
+                      element={
+                        <Navigate to={loggedInUser?.is_admin ? '/admin' : '/prop-firm'} replace />
+                      }
+                    />
+                  }
+                />
+
+                {/* User Routes */}
+                <Route path="/profile" element={<PrivateRoute element={<ProfilePage />} />} />
+                <Route path="/instruments" element={<PrivateRoute element={<AssetsPage />} />} />
+                <Route path="/instruments/:id" element={<PrivateRoute element={<AssetDetailPage />} />} />
+                <Route path="/graphs/:id" element={<PrivateRoute element={<GraphsPage />} />} />
+                <Route path="/prop-firm" element={<PrivateRoute element={<PropFirmPage />} />} />
+                <Route path="/watchlists" element={<PrivateRoute element={<WatchlistsPage />} />} />
+                <Route path="/watchlists/:id" element={<PrivateRoute element={<WatchlistsPage />} />} />
+                <Route path="/contact" element={<PrivateRoute element={<ContactPage />} />} />
+
+                {/* Admin Routes */}
+                <Route path="/admin" element={<AdminRoute element={<AdminDashboard />} />} />
+                <Route path="/admin/users" element={<AdminRoute element={<AdminUsers />} />} />
+                <Route path="/admin/accounts" element={<AdminRoute element={<AdminAccounts />} />} />
+                <Route path="/admin/plans" element={<AdminRoute element={<AdminPlans />} />} />
+                <Route path="/admin/payouts" element={<AdminRoute element={<AdminPayouts />} />} />
+                <Route path="/admin/violations" element={<AdminRoute element={<AdminViolations />} />} />
+                <Route path="/admin/assets" element={<AdminRoute element={<AdminAssetsPage />} />} />
+                <Route path="/admin/watchlists" element={<AdminRoute element={<AdminWatchlistsPage />} />} />
+                <Route path="/admin/trades" element={<AdminRoute element={<AdminTrades />} />} />
+
+                {/* Public Routes */}
+                <Route path="/privacy" element={<PrivacyPage />} />
+                <Route path="/terms" element={<TermsPage />} />
+                <Route path="/login" element={<LoginRegPage />} />
+
+                {/* 404 */}
+                <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </Suspense>
             <Toaster

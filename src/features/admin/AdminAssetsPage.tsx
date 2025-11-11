@@ -3,8 +3,6 @@ import { useState } from "react";
 import {
   Loader2,
   RefreshCcw,
-  Database,
-  Building2,
   ArrowLeft,
   ArrowRight,
 } from "lucide-react";

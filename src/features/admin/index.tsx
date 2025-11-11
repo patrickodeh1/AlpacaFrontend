@@ -146,6 +146,12 @@ const AdminDashboard: React.FC = () => {
                     Plans
                   </Button>
                 </Link>
+                <Link to="/admin/trades">
+                  <Button variant="ghost" className="w-full justify-start" size="sm">
+                    <Activity className="w-4 h-4 mr-2" />
+                    Trade History
+                  </Button>
+                </Link>
                 <Link to="/admin/payouts">
                   <Button variant="ghost" className="w-full justify-start" size="sm">
                     <DollarSign className="w-4 h-4 mr-2" />

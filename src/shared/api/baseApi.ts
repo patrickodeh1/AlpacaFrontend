@@ -34,7 +34,6 @@ const baseQueryWithReauth: BaseQueryFn<
   if (result.error && result.error.status === 401) {
     const refreshToken = getRefreshToken();
     if (refreshToken) {
-      // Try to refresh the token
       const refreshResult = await baseQuery(
         {
           url: '/account/refresh_token/',
@@ -48,28 +47,23 @@ const baseQueryWithReauth: BaseQueryFn<
       if (refreshResult.data) {
         const data = refreshResult.data as { access?: string; refresh?: string };
         if (data.access) {
-          // Update the token in Redux and cookies
           api.dispatch({ type: 'auth/tokenRefreshed', payload: data.access });
           Cookies.set('alpaca.authjwt', data.access);
           if (data.refresh) {
             Cookies.set('refresh_token', data.refresh);
           }
-          // Retry the original request with the new token
           result = await baseQuery(args, api, extraOptions);
         } else {
-          // Refresh failed, log out
           api.dispatch({ type: 'auth/logout' });
           Cookies.remove('alpaca.authjwt');
           Cookies.remove('refresh_token');
         }
       } else {
-        // Refresh request failed, log out
         api.dispatch({ type: 'auth/logout' });
         Cookies.remove('alpaca.authjwt');
         Cookies.remove('refresh_token');
       }
     } else {
-      // No refresh token available, log out
       api.dispatch({ type: 'auth/logout' });
       Cookies.remove('alpaca.authjwt');
       Cookies.remove('refresh_token');
@@ -105,6 +99,9 @@ export const baseApi = createApi({
     'AdminPayouts',
     'AdminUsers',
     'AdminViolations',
+    'AdminWatchlists',
+    'AdminAssets',
+    'AdminTrades',
   ],
   endpoints: (builder) => ({
     // ============================================
@@ -116,6 +113,54 @@ export const baseApi = createApi({
       providesTags: ['AdminDashboard'],
     }),
     
+    // Admin Users
+    getAdminUsers: builder.query({
+      query: (params) => ({
+        url: '/prop-firm/admin/users/',
+        params,
+      }),
+      providesTags: ['AdminUsers'],
+    }),
+    
+    getAdminUserDetail: builder.query({
+      query: (id) => `/prop-firm/admin/users/${id}/`,
+      providesTags: ['AdminUsers'],
+    }),
+    
+    updateAdminUser: builder.mutation({
+      query: ({ id, ...data }) => ({
+        url: `/prop-firm/admin/users/${id}/`,
+        method: 'PATCH',
+        body: data,
+      }),
+      invalidatesTags: ['AdminUsers'],
+    }),
+    
+    deleteAdminUser: builder.mutation({
+      query: (id) => ({
+        url: `/prop-firm/admin/users/${id}/`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['AdminUsers'],
+    }),
+    
+    toggleUserAdmin: builder.mutation({
+      query: (id) => ({
+        url: `/prop-firm/admin/users/${id}/toggle_admin/`,
+        method: 'POST',
+      }),
+      invalidatesTags: ['AdminUsers'],
+    }),
+    
+    toggleUserVerified: builder.mutation({
+      query: (id) => ({
+        url: `/prop-firm/admin/users/${id}/toggle_verified/`,
+        method: 'POST',
+      }),
+      invalidatesTags: ['AdminUsers'],
+    }),
+    
+    // Admin Accounts
     getAdminAccounts: builder.query({
       query: (params) => ({
         url: '/prop-firm/admin/accounts/',
@@ -171,19 +216,26 @@ export const baseApi = createApi({
       invalidatesTags: ['AdminAccounts'],
     }),
     
-    getAdminViolations: builder.query({
-      query: (params) => ({
-        url: '/prop-firm/admin/violations/',
-        params,
+    changeAccountStatus: builder.mutation({
+      query: ({ id, status }) => ({
+        url: `/prop-firm/admin/accounts/${id}/change_status/`,
+        method: 'POST',
+        body: { status },
       }),
-      providesTags: ['AdminViolations'],
+      invalidatesTags: ['AdminAccounts', 'AdminDashboard'],
     }),
     
+    // Admin Plans
     getAdminPlans: builder.query({
       query: (params) => ({
         url: '/prop-firm/admin/plans/',
         params,
       }),
+      providesTags: ['AdminPlans'],
+    }),
+    
+    getAdminPlanDetail: builder.query({
+      query: (id) => `/prop-firm/admin/plans/${id}/`,
       providesTags: ['AdminPlans'],
     }),
     
@@ -213,6 +265,15 @@ export const baseApi = createApi({
       invalidatesTags: ['AdminPlans'],
     }),
     
+    togglePlanActive: builder.mutation({
+      query: (id) => ({
+        url: `/prop-firm/admin/plans/${id}/toggle_active/`,
+        method: 'POST',
+      }),
+      invalidatesTags: ['AdminPlans'],
+    }),
+    
+    // Admin Payouts
     getAdminPayouts: builder.query({
       query: (params) => ({
         url: '/prop-firm/admin/payouts/',
@@ -237,34 +298,120 @@ export const baseApi = createApi({
       invalidatesTags: ['AdminPayouts', 'AdminDashboard'],
     }),
     
-    getAdminUsers: builder.query({
+    rejectPayout: builder.mutation({
+      query: ({ id, reason }) => ({
+        url: `/prop-firm/admin/payouts/${id}/reject/`,
+        method: 'POST',
+        body: { reason },
+      }),
+      invalidatesTags: ['AdminPayouts', 'AdminDashboard'],
+    }),
+    
+    updateAdminPayout: builder.mutation({
+      query: ({ id, ...data }) => ({
+        url: `/prop-firm/admin/payouts/${id}/`,
+        method: 'PATCH',
+        body: data,
+      }),
+      invalidatesTags: ['AdminPayouts'],
+    }),
+    
+    // Admin Violations
+    getAdminViolations: builder.query({
       query: (params) => ({
-        url: '/prop-firm/admin/users/',
+        url: '/prop-firm/admin/violations/',
         params,
       }),
-      providesTags: ['AdminUsers'],
+      providesTags: ['AdminViolations'],
     }),
     
-    deleteAdminUser: builder.mutation({
-      query: (id) => ({
-        url: `/prop-firm/admin/users/${id}/`,
-        method: 'DELETE',
-      }),
-      invalidatesTags: ['AdminUsers'],
-    }),
-    
-    getAdminAssets: builder.query({
-      query: (params) => ({
-        url: '/prop-firm/admin/assets/',
-        params,
-      }),
-    }),
-    
+    // Admin Watchlists
     getAdminWatchlists: builder.query({
       query: (params) => ({
         url: '/prop-firm/admin/watchlists/',
         params,
       }),
+      providesTags: ['AdminWatchlists'],
+    }),
+    
+    getAdminWatchlistDetail: builder.query({
+      query: (id) => `/prop-firm/admin/watchlists/${id}/`,
+      providesTags: ['AdminWatchlists'],
+    }),
+    
+    updateAdminWatchlist: builder.mutation({
+      query: ({ id, ...data }) => ({
+        url: `/prop-firm/admin/watchlists/${id}/`,
+        method: 'PATCH',
+        body: data,
+      }),
+      invalidatesTags: ['AdminWatchlists'],
+    }),
+    
+    deleteAdminWatchlist: builder.mutation({
+      query: (id) => ({
+        url: `/prop-firm/admin/watchlists/${id}/`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['AdminWatchlists'],
+    }),
+    
+    toggleWatchlistActive: builder.mutation({
+      query: (id) => ({
+        url: `/prop-firm/admin/watchlists/${id}/toggle_active/`,
+        method: 'POST',
+      }),
+      invalidatesTags: ['AdminWatchlists'],
+    }),
+    
+    // Admin Assets
+    getAdminAssets: builder.query({
+      query: (params) => ({
+        url: '/prop-firm/admin/assets/',
+        params,
+      }),
+      providesTags: ['AdminAssets'],
+    }),
+    
+    getAdminAssetDetail: builder.query({
+      query: (id) => `/prop-firm/admin/assets/${id}/`,
+      providesTags: ['AdminAssets'],
+    }),
+    
+    updateAdminAsset: builder.mutation({
+      query: ({ id, ...data }) => ({
+        url: `/prop-firm/admin/assets/${id}/`,
+        method: 'PATCH',
+        body: data,
+      }),
+      invalidatesTags: ['AdminAssets'],
+    }),
+    
+    toggleAssetTradable: builder.mutation({
+      query: (id) => ({
+        url: `/prop-firm/admin/assets/${id}/toggle_tradable/`,
+        method: 'POST',
+      }),
+      invalidatesTags: ['AdminAssets'],
+    }),
+    
+    // Admin Trades (NEW)
+    getAdminTrades: builder.query({
+      query: (params) => ({
+        url: '/prop-firm/admin/trades/',
+        params,
+      }),
+      providesTags: ['AdminTrades'],
+    }),
+    
+    getAdminTradeDetail: builder.query({
+      query: (id) => `/prop-firm/admin/trades/${id}/`,
+      providesTags: ['AdminTrades'],
+    }),
+    
+    getAdminTradeStatistics: builder.query({
+      query: () => '/prop-firm/admin/trades/statistics/',
+      providesTags: ['AdminTrades'],
     }),
     
     // ============================================
@@ -332,8 +479,18 @@ export const baseApi = createApi({
 
 // Export hooks for all endpoints
 export const {
-  // Admin hooks
+  // Admin Dashboard
   useGetAdminDashboardQuery,
+  
+  // Admin Users
+  useGetAdminUsersQuery,
+  useGetAdminUserDetailQuery,
+  useUpdateAdminUserMutation,
+  useDeleteAdminUserMutation,
+  useToggleUserAdminMutation,
+  useToggleUserVerifiedMutation,
+  
+  // Admin Accounts
   useGetAdminAccountsQuery,
   useGetAdminAccountDetailQuery,
   useUpdateAdminAccountMutation,
@@ -341,18 +498,43 @@ export const {
   useActivateAccountMutation,
   useUpdateAccountBalanceMutation,
   useAddAccountNoteMutation,
-  useGetAdminViolationsQuery,
+  useChangeAccountStatusMutation,
+  
+  // Admin Plans
   useGetAdminPlansQuery,
+  useGetAdminPlanDetailQuery,
   useCreateAdminPlanMutation,
   useUpdateAdminPlanMutation,
   useDeleteAdminPlanMutation,
+  useTogglePlanActiveMutation,
+  
+  // Admin Payouts
   useGetAdminPayoutsQuery,
   useApprovePayoutMutation,
   useCompletePayoutMutation,
-  useGetAdminUsersQuery,
-  useDeleteAdminUserMutation,
-  useGetAdminAssetsQuery,
+  useRejectPayoutMutation,
+  useUpdateAdminPayoutMutation,
+  
+  // Admin Violations
+  useGetAdminViolationsQuery,
+  
+  // Admin Watchlists
   useGetAdminWatchlistsQuery,
+  useGetAdminWatchlistDetailQuery,
+  useUpdateAdminWatchlistMutation,
+  useDeleteAdminWatchlistMutation,
+  useToggleWatchlistActiveMutation,
+  
+  // Admin Assets
+  useGetAdminAssetsQuery,
+  useGetAdminAssetDetailQuery,
+  useUpdateAdminAssetMutation,
+  useToggleAssetTradableMutation,
+  
+  // Admin Trades
+  useGetAdminTradesQuery,
+  useGetAdminTradeDetailQuery,
+  useGetAdminTradeStatisticsQuery,
   
   // User prop firm hooks
   useGetPropFirmPlansQuery,

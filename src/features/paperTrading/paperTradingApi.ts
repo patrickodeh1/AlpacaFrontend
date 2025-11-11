@@ -13,6 +13,12 @@ interface GetPaperTradesArgs {
   currentPrice?: number;
 }
 
+interface UpdatePaperTradePayload {
+  id: number;
+  stop_loss?: string | number | null;
+  take_profit?: string | number | null;
+}
+
 export const paperTradingApi = baseApi.injectEndpoints({
   endpoints: builder => ({
     getPaperTrades: builder.query<PaperTrade[], GetPaperTradesArgs | void>({
@@ -94,6 +100,20 @@ export const paperTradingApi = baseApi.injectEndpoints({
       },
       invalidatesTags: [{ type: 'PaperTrade', id: 'LIST' }],
     }),
+    updatePaperTrade: builder.mutation<PaperTrade, UpdatePaperTradePayload>({
+      query: ({ id, ...body }) => ({
+        url: `/paper-trading/trades/${id}/`,
+        method: 'PATCH',
+        body,
+      }),
+      transformResponse: (response: any) => {
+        return response?.data || response;
+      },
+      invalidatesTags: (_results, _error, arg) => [
+        { type: 'PaperTrade', id: arg.id },
+        { type: 'PaperTrade', id: 'LIST' },
+      ],
+    }),
     closePaperTrade: builder.mutation<PaperTrade, ClosePaperTradePayload>({
       query: ({ id, ...body }) => ({
         url: `/paper-trading/trades/${id}/close/`,
@@ -139,6 +159,7 @@ export const paperTradingApi = baseApi.injectEndpoints({
 export const {
   useGetPaperTradesQuery,
   useCreatePaperTradeMutation,
+  useUpdatePaperTradeMutation,
   useClosePaperTradeMutation,
   useCancelPaperTradeMutation,
   useDeletePaperTradeMutation,
